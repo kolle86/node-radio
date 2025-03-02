@@ -1,10 +1,10 @@
 # node_radio
-Web frontend for radio stations provided by radio-browser.
+Webapp for radio stations provided by radio-browser.
 
-- Search Radio-Browser database and add stations to favourites (https://www.radio-browser.info/)
-- Spectrum Visualizer (via https://github.com/hvianna/audioMotion.js/)
-- Controlable via chrome media session
-- Displays song information (via https://gitlab.com/radiolise/radiolise.gitlab.io/-/blob/master/packages/radiolise/readme.md)
+- Search Radio-Browser database and add stations to favourites
+- Spectrum Visualizer
+- Support for chrome media session
+- Support now playing metadata
 - Installable as progressive web app (must be served via https)
 
 ![Projekt Screenshot](screenshot.png)
@@ -84,3 +84,8 @@ The application now runs on http://localhost:3000
 | Frontend    | ![Bootstrap](https://img.shields.io/badge/Bootstrap-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white) |
 | Backend     | ![Node.js](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white) ![Express](https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white)  |
 | CI/CD       | ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white) | 
+
+## 📌 Credits
+- Radio-Browser: https://www.radio-browser.info/
+- Radiolise: https://gitlab.com/radiolise/radiolise.gitlab.io
+- Audiomotion: https://github.com/hvianna/audioMotion.js/
