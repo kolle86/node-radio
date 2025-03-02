@@ -1,0 +1,11 @@
+services:
+  node-radio:
+    image: node-radio
+    container_name: node-radio
+    restart: unless-stopped
+    environment:
+      PASSWORD: node-radio
+    ports:
+      - "3000:3000"
+    volumes:
+      - ~/node_radio:/app/data

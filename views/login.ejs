@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<%- include('partials/head.ejs'); -%>
+<body class="d-flex align-items-center py-4 bg-body">
+    <main class="form-signin w-100 m-auto text-center">
+        <form class="py-4 mt-4" method="POST" action="/login">
+          <img src="icons/192.png" width="72">
+          <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
+    
+            <% if (typeof login_error !== 'undefined'){  %>
+                <div class="alert alert-danger" role="alert">
+                    Login failed
+                </div>
+            <%}%>
+          <div class="form-floating mb-3">
+            <input type="password" class="form-control" id="floatingPassword" name="password" placeholder="Password">
+            <label for="floatingPassword">Password</label>
+          </div>
+      
+          <button class="btn btn-primary w-100 py-2" type="submit" id="submitbutton" name="loginbutton" value="Login">Sign in</button>
+        </form>
+      </main>
+  
+</body>
+</html>
