@@ -1,4 +1,4 @@
-# node_radio
+# 📻 node-radio
 Webapp for radio stations provided by radio-browser.
 
 - Search Radio-Browser database and add stations to favourites
