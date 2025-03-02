@@ -30,7 +30,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ~/node_radio:/app/data
+      - node_radio:/app/data
 ```
 
 3. Start container
