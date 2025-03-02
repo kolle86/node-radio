@@ -186,14 +186,22 @@ function renderFavourites() {
     Array.from(document.getElementsByClassName("fav")).forEach(element => {
         element.remove();
     });
-    for (let index = 0; index < favourites.stations.length; index++) {
-        var newFav = document.createElement("a");
-        newFav.innerHTML = '<div class="ms-2 me-auto"><div class="fw-bold">' + favourites.stations[index].name + '</div><div class="title"><span class="me-1 bi" id="status_' + favourites.stations[index].uuid + '"></span><span id="title_' + favourites.stations[index].uuid + '"></span></div></div><img class="rounded border" src="' + favourites.stations[index].favicon + '">';
-        newFav.href = "javascript:void(0);"
-        newFav.id = favourites.stations[index].uuid;
-        newFav.setAttribute("class", "list-group-item list-group-item-action d-flex justify-content-between align-items-start fav");
-        newFav.setAttribute("onclick", "clickStation('" + favourites.stations[index].url + "','" + favourites.stations[index].favicon + "','" + favourites.stations[index].name + "','" + favourites.stations[index].uuid + "')");
+    if(favourites.stations.length > 0){
+        for (let index = 0; index < favourites.stations.length; index++) {
+            var newFav = document.createElement("a");
+            newFav.innerHTML = '<div class="ms-2 me-auto"><div class="fw-bold">' + favourites.stations[index].name + '</div><div class="title"><span class="me-1 bi" id="status_' + favourites.stations[index].uuid + '"></span><span id="title_' + favourites.stations[index].uuid + '"></span></div></div><img class="rounded border" src="' + favourites.stations[index].favicon + '">';
+            newFav.href = "javascript:void(0);"
+            newFav.id = favourites.stations[index].uuid;
+            newFav.setAttribute("class", "list-group-item list-group-item-action d-flex justify-content-between align-items-start fav");
+            newFav.setAttribute("onclick", "clickStation('" + favourites.stations[index].url + "','" + favourites.stations[index].favicon + "','" + favourites.stations[index].name + "','" + favourites.stations[index].uuid + "')");
+            document.getElementById("favourites").appendChild(newFav);
+        }
+    }else{
+        var newFav = document.createElement("li");
+        newFav.innerHTML = 'Favourites are empty. <br>Select the upper right dropdown and search for stations. <br>Select a station from the results and add it to the favourites via the dropdown.';
+        newFav.setAttribute("class", "list-group-item fav");
         document.getElementById("favourites").appendChild(newFav);
+
     }
 }
 
