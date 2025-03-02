@@ -23,6 +23,8 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/node-radio:latest \
-                       -t ${{ secrets.DOCKER_USERNAME }}/node-radio:${{ github.event.release.tag_name }} .
+          docker buildx create --use
+          docker buildx build --platform linux/amd64,linux/arm64 \
+            -t ${{ secrets.DOCKER_USERNAME }}/node-radio:latest \
+            -t ${{ secrets.DOCKER_USERNAME }}/node-radio:${{ github.event.release.tag_name }} .
           docker push ${{ secrets.DOCKER_USERNAME }}/node-radio --all-tags
