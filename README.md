@@ -1,6 +1,11 @@
 # node_radio
 Web frontend for radio stations provided by radio-browser.
 
+- Search Radio-Browser database and add stations to favourites
+- Spectrum Visualizer (via https://github.com/hvianna/audioMotion.js/)
+- Controlable via chrome media session
+- Displays song information (via https://gitlab.com/radiolise/radiolise.gitlab.io/-/blob/master/packages/radiolise/readme.md)
+
 ![Projekt Screenshot](screenshot.png)
 
 ## 🚀 Installation 
@@ -16,11 +21,11 @@ touch docker-compose.yml
 ```
 services:
   node-radio:
-    image: node_radio
+    image: kolstr/node-radio
     container_name: node-radio
     restart: unless-stopped
     environment:
-      PASSWORD: node_radio
+      PASSWORD: node-radio
     ports:
       - "3000:3000"
     volumes:
