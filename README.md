@@ -1,7 +1,7 @@
 # node_radio
 Web frontend for radio stations provided by radio-browser.
 
-- Search Radio-Browser database and add stations to favourites
+- Search Radio-Browser database and add stations to favourites (https://www.radio-browser.info/)
 - Spectrum Visualizer (via https://github.com/hvianna/audioMotion.js/)
 - Controlable via chrome media session
 - Displays song information (via https://gitlab.com/radiolise/radiolise.gitlab.io/-/blob/master/packages/radiolise/readme.md)
