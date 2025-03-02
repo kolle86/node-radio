@@ -5,6 +5,7 @@ Web frontend for radio stations provided by radio-browser.
 - Spectrum Visualizer (via https://github.com/hvianna/audioMotion.js/)
 - Controlable via chrome media session
 - Displays song information (via https://gitlab.com/radiolise/radiolise.gitlab.io/-/blob/master/packages/radiolise/readme.md)
+- Installable as progressive web app (must be served via https)
 
 ![Projekt Screenshot](screenshot.png)
 
