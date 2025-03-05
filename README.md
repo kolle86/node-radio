@@ -1,13 +1,16 @@
-📻 Node-Radio
-A sleek and modern web application for browsing and streaming radio stations powered by Radio-Browser.
+# 📻 Node-Radio
 
-✨ Features
-🔍 Explore & Discover – Search the extensive Radio-Browser database to find your favorite stations.
-⭐ Favorites – Easily add stations to your favorites for quick access.
-🎵 Spectrum Visualizer – Enjoy a dynamic audio visualization while listening.
-🎛️ Chrome Media Session Support – Control playback directly from your device's media controls.
-📡 Live Metadata – Display now-playing information (when available).
-📲 Progressive Web App (PWA) – Install the app for a native-like experience (requires HTTPS).
+A sleek and modern web application for browsing and streaming radio stations powered by [Radio-Browser](https://www.radio-browser.info/).  
+
+## ✨ Features  
+
+- 🔍 **Explore & Discover** – Search the extensive Radio-Browser database to find your favorite stations.  
+- ⭐ **Favorites** – Easily add stations to your favorites for quick access.  
+- 🎵 **Spectrum Visualizer** – Enjoy a dynamic audio visualization while listening.  
+- 🎛️ **Chrome Media Session Support** – Control playback directly from your device's media controls.  
+- 📡 **Live Metadata** – Display now-playing information (when available).  
+- 📲 **Progressive Web App (PWA)** – Install the app for a native-like experience (requires HTTPS).  
+
 
 ![Projekt Screenshot](screenshot.png)
 
