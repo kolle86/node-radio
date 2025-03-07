@@ -154,4 +154,4 @@ app.get('/logout', (req, res) => {
     });
 });
 
-app.listen(4004, '0.0.0.0');
+app.listen(3000, '0.0.0.0');
