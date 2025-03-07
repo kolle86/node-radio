@@ -1,6 +1,6 @@
 {
   "name": "node-radio",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "audiomotion-analyzer": "^4.5.0",
+    "axios": "^1.8.2",
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
     "cors": "^2.8.5",

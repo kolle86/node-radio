@@ -1,5 +1,7 @@
 const express = require("express");
 const app = express();
+const axios = require('axios');
+const packageJson = require('./package.json');
 const RadioBrowser = require('radio-browser')
 var bodyParser = require('body-parser')
 const fs = require('fs');
@@ -40,13 +42,28 @@ app.use((req, res, next) => {
     next();
 });
 
-app.get('/', (req, res) => {
+async function getLatestGitHubVersion() {
+    try {
+        const response = await axios.get(`https://api.github.com/repos/kolle86/node-radio/releases/latest`);
+        return response.data.tag_name.replace(/^v/, '');
+    } catch (error) {
+        console.error('Fehler beim Abrufen der GitHub-Version:', error.message);
+        return null;
+    }
+}
+
+app.get('/', async(req, res) => {
 
     const isLoggedIn = req.session.isLoggedIn;
     
     if (isLoggedIn) {
+        const isUpToDate = packageJson.version === await getLatestGitHubVersion();
+        const version = ({
+            appVersion: packageJson.version,
+            isUpToDate,
+        });
         data = null;
-        res.render('index', {data});
+        res.render('index', {data, version});
     } else {
         if(password === undefined){
             res.send("No password set. Set password via environment (-e PASSWORD)")
@@ -69,10 +86,15 @@ app.post('/login', async (req, res) => {
       
 });
 
-app.post('/', (req, res) => {
+app.post('/', async (req, res) => {
     const isLoggedIn = req.session.isLoggedIn;
     
     if (isLoggedIn) {
+        const isUpToDate = packageJson.version === await getLatestGitHubVersion();
+        const version = ({
+            appVersion: packageJson.version,
+            isUpToDate,
+        });
         search = req.body.searchterm;
         if(search != "" && search != null){
             let filter = {
@@ -80,7 +102,7 @@ app.post('/', (req, res) => {
                 searchterm: search // term in tag
             }
             RadioBrowser.getStations(filter)
-                .then(data => res.render('index', { data,  search}))
+                .then(data => res.render('index', { data,  search, version}))
                 .catch(error => console.error(error))
         }else{
             res.redirect("/");
@@ -132,4 +154,4 @@ app.get('/logout', (req, res) => {
     });
 });
 
-app.listen(3000, '0.0.0.0');
+app.listen(4004, '0.0.0.0');
