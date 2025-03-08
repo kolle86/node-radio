@@ -9,7 +9,6 @@ const favsFile = './data/favourites.json';
 var cors = require('cors')
 const session = require('express-session');
 const path = require("path");
-const axios = require("axios");
 const { randomBytes } = require("node:crypto");
 require('dotenv').config();
 const password = process.env.PASSWORD;
