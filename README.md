@@ -8,7 +8,8 @@ A sleek and modern web application for browsing and streaming radio stations pow
 - ⭐ **Favorites** – Easily add stations to your favorites for quick access.  
 - 🎵 **Spectrum Visualizer** – Enjoy a dynamic audio visualization while listening.  
 - 🎛️ **Chrome Media Session Support** – Control playback directly from your device's media controls.  
-- 📡 **Live Metadata** – Display now-playing information (when available).  
+- 📡 **Live Metadata** – Display now-playing information (when available).
+- 📷 Cover Art Support – Display album or station cover art while listening.
 - 📲 **Progressive Web App (PWA)** – Install the app for a native-like experience (requires HTTPS).  
 
 
