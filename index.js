@@ -7,10 +7,9 @@ const favsFile = './data/favourites.json';
 var cors = require('cors')
 const session = require('express-session');
 const path = require("path");
+const axios = require("axios");
 const { randomBytes } = require("node:crypto");
-
 require('dotenv').config();
-
 const password = process.env.PASSWORD;
 
 app.set('view engine', 'ejs');
@@ -130,6 +129,40 @@ app.get('/logout', (req, res) => {
             res.redirect('/');
         }
     });
+});
+
+app.get("/cover", async (req, res) => {
+    const { title } = req.query;
+    if (!title) {
+        return res.status(400).json({ error: "Bitte einen Songtitel angeben." });
+    }
+    
+    let searchTerm = title;
+    const parts = title.split(" - ").map(str => str.trim());
+    if (parts.length === 2) {
+        searchTerm = `${parts[0]} ${parts[1]}`;
+    }
+    
+    try {
+        const response = await axios.get("https://itunes.apple.com/search", {
+            params: {
+                term: searchTerm,
+                media: "music",
+                entity: "musicTrack",
+                entity: "album",
+                limit: 1
+            }
+        });
+        
+        if (response.data.resultCount > 0) {
+            const coverUrl = response.data.results[0].artworkUrl100.replace("100x100bb", "500x500bb");
+            res.json({ searchTerm, coverUrl });
+        } else {
+            res.json({ searchTerm, coverUrl: null }); // Leeres Ergebnis statt 404
+        }
+    } catch (error) {
+        res.status(500).json({ error: "Fehler beim Abrufen des Covers." });
+    }
 });
 
 app.listen(3000, '0.0.0.0');

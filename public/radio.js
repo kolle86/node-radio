@@ -37,10 +37,10 @@ if ('mediaSession' in navigator) {
         for (let i = 0; i < favourites.stations.length; i++) {
             if (favourites.stations[i].uuid == currentStation.uuid) {
                 nextStation = i - 1;
-                if(nextStation<0){
-                    nextStation=favourites.stations.length-1;
+                if (nextStation < 0) {
+                    nextStation = favourites.stations.length - 1;
                 }
-                clickStation(favourites.stations[nextStation].url,favourites.stations[nextStation].favicon,favourites.stations[nextStation].name,favourites.stations[nextStation].uuid)
+                clickStation(favourites.stations[nextStation].url, favourites.stations[nextStation].favicon, favourites.stations[nextStation].name, favourites.stations[nextStation].uuid)
                 break;
             }
         }
@@ -51,10 +51,10 @@ if ('mediaSession' in navigator) {
         for (let i = 0; i < favourites.stations.length; i++) {
             if (favourites.stations[i].uuid == currentStation.uuid) {
                 nextStation = i + 1;
-                if(nextStation>favourites.stations.length-1){
-                    nextStation=0;
+                if (nextStation > favourites.stations.length - 1) {
+                    nextStation = 0;
                 }
-                clickStation(favourites.stations[nextStation].url,favourites.stations[nextStation].favicon,favourites.stations[nextStation].name,favourites.stations[nextStation].uuid)
+                clickStation(favourites.stations[nextStation].url, favourites.stations[nextStation].favicon, favourites.stations[nextStation].name, favourites.stations[nextStation].uuid)
                 break;
             }
         }
@@ -67,16 +67,16 @@ if (localStorage.getItem("volume") != null) {
     document.getElementById('radio').volume = (localStorage.getItem("volume"));
     document.getElementById('volumeRange').value = localStorage.getItem("volume") * 100;
     changeVolume(localStorage.getItem("volume") * 100);
-}else{
+} else {
     document.getElementById('volumeRange').value = radio.volume * 100;
 }
 if (localStorage.getItem("visualizer") != null) {
-        if(localStorage.getItem("visualizer") == 0){
-            audioMotion.toggleAnalyzer();
-            document.getElementById("visualizer").style.visibility = "hidden";
-            document.getElementById("visualizerCheck").checked = false;
-        }
-   }
+    if (localStorage.getItem("visualizer") == 0) {
+        audioMotion.toggleAnalyzer();
+        document.getElementById("visualizer").style.visibility = "hidden";
+        document.getElementById("visualizerCheck").checked = false;
+    }
+}
 
 const nowPlaying = RadioliseMetadata.createMetadataClient({
     url: 'wss://backend.radiolise.com/api/data-service',
@@ -90,17 +90,17 @@ document.querySelectorAll('.dropdown-item.no-close').forEach(item => {
 
 getFavs();
 
-function toggleVisualizer(){
+function toggleVisualizer() {
     audioMotion.toggleAnalyzer();
     visualizer = document.getElementById("visualizer");
-    if(getComputedStyle(visualizer).visibility === 'visible'){
+    if (getComputedStyle(visualizer).visibility === 'visible') {
         visualizer.style.visibility = "hidden";
-        localStorage.setItem("visualizer", 0);        
-    }else{
+        localStorage.setItem("visualizer", 0);
+    } else {
         visualizer.style.visibility = "visible";
-        localStorage.setItem("visualizer", 1);        
+        localStorage.setItem("visualizer", 1);
     }
-    
+
 }
 
 function clickStation(url, artwork, station, stationuuid) {
@@ -133,32 +133,32 @@ function favouritesAction(action) {
     if (currentStation.url != null) {
         var data = JSON.stringify({ url: currentStation.url, name: currentStation.name, favicon: currentStation.favicon, uuid: currentStation.uuid });
         if (action == "remove") {
-             if(confirm("Remove " + currentStation.name + " from favourites?")){
-                 if (document.getElementById(currentStation.uuid) != null) {
-                     if (document.getElementById(currentStation.uuid).classList.contains("active") && document.getElementById(currentStation.uuid).classList.contains("fav")) {
-     
-                         for (let i = 0; i < favourites.stations.length; i++) {
-                             if (favourites.stations[i].uuid == currentStation.uuid) {
-                                 favourites.stations.splice(i, 1);
-                             }
-                         }
-     
-                         fetch("/setfavs", {
-                             method: "POST",
-                             headers: {
-                                 'Content-Type': 'application/json'
-                             },
-                             body: JSON.stringify(favourites)
-                         }).then(response => {
-                             renderFavourites();
-                             nowPlaying.trackStream(undefined);
-                             updateUI();
-                             setMenu();
-                         });
-     
-                     }
-                 }
-             }
+            if (confirm("Remove " + currentStation.name + " from favourites?")) {
+                if (document.getElementById(currentStation.uuid) != null) {
+                    if (document.getElementById(currentStation.uuid).classList.contains("active") && document.getElementById(currentStation.uuid).classList.contains("fav")) {
+
+                        for (let i = 0; i < favourites.stations.length; i++) {
+                            if (favourites.stations[i].uuid == currentStation.uuid) {
+                                favourites.stations.splice(i, 1);
+                            }
+                        }
+
+                        fetch("/setfavs", {
+                            method: "POST",
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(favourites)
+                        }).then(response => {
+                            renderFavourites();
+                            nowPlaying.trackStream(undefined);
+                            updateUI();
+                            setMenu();
+                        });
+
+                    }
+                }
+            }
         } else if (action == 'add') {
             if (document.getElementById(currentStation.uuid) != null) {
                 if (document.getElementById(currentStation.uuid).classList.contains("active")) {
@@ -186,17 +186,20 @@ function renderFavourites() {
     Array.from(document.getElementsByClassName("fav")).forEach(element => {
         element.remove();
     });
-    if(favourites.stations.length > 0){
+    if (favourites.stations.length > 0) {
         for (let index = 0; index < favourites.stations.length; index++) {
             var newFav = document.createElement("a");
-            newFav.innerHTML = '<div class="ms-2 me-auto"><div class="fw-bold">' + favourites.stations[index].name + '</div><div class="title"><span class="me-1 bi" id="status_' + favourites.stations[index].uuid + '"></span><span id="title_' + favourites.stations[index].uuid + '"></span></div></div><img class="rounded border" src="' + favourites.stations[index].favicon + '">';
+            newFav.innerHTML = '<div class="ms-2 me-auto"><div class="fw-bold">' + favourites.stations[index].name + '</div>\
+                <div class="title"><span class="me-1 bi" id="status_' + favourites.stations[index].uuid + '"></span>\
+                <span id="title_' + favourites.stations[index].uuid + '"></span></div></div>\
+                <img id="favicon_' + favourites.stations[index].uuid + '" class="rounded border" src="' + favourites.stations[index].favicon + '">';
             newFav.href = "javascript:void(0);"
             newFav.id = favourites.stations[index].uuid;
             newFav.setAttribute("class", "list-group-item list-group-item-action d-flex justify-content-between align-items-start fav");
             newFav.setAttribute("onclick", "clickStation('" + favourites.stations[index].url + "','" + favourites.stations[index].favicon + "','" + favourites.stations[index].name + "','" + favourites.stations[index].uuid + "')");
             document.getElementById("favourites").appendChild(newFav);
         }
-    }else{
+    } else {
         var newFav = document.createElement("li");
         newFav.innerHTML = 'Favourites are empty. <br>Select the upper right dropdown and search for stations. <br>Select a station from the results and add it to the favourites via the dropdown.';
         newFav.setAttribute("class", "list-group-item fav");
@@ -321,7 +324,7 @@ function saveEditedFavourite() {
                 },
                 body: JSON.stringify(favourites)
             }).then(response => {
-                renderFavourites(); 
+                renderFavourites();
                 radio.src = currentStation.url;
                 //radio.load();              
                 updateUI();
@@ -340,7 +343,7 @@ function newToast(message) {
 function getAudioMotionMode() {
     var mode = 12 - parseInt(window.innerWidth / 100)
     if (mode <= 2) {
-        mode = 2; 
+        mode = 2;
     }
     if (mode >= 6) {
         mode = 6;
@@ -419,7 +422,9 @@ function updateUI() {
     var items = document.getElementsByClassName('list-group-item');
     for (let i = 0; i < items.length; i++) {
         items[i].classList.remove('active');
+        document.getElementById("favicon_" + items[i].id).classList.remove("cover");
         if (document.getElementById("title_" + items[i].id) != null && items[i].id != currentStation.uuid) {
+            document.getElementById("favicon_" + items[i].id).src=favourites.stations[i].favicon;
             document.getElementById("title_" + items[i].id).innerHTML = "";
             document.getElementById("status_" + items[i].id).classList.remove("bi-play-circle", "bi-pause-circle", "spinner-border", "bi-x-circle");
         }
@@ -438,7 +443,7 @@ function updateUI() {
             document.getElementById("dropdown_station").classList.remove("bi-bookmark-x");
             document.getElementById("dropdown_station").classList.add("bi-bookmark-check");
         }
-    } 
+    }
     document.getElementById("dropdown_station").innerHTML = " " + currentStation.name;
 
     if ('mediaSession' in navigator) {
@@ -459,6 +464,9 @@ function updateUI() {
                         document.getElementById("title_" + currentStation.uuid).innerHTML = "";
                     } else {
                         document.getElementById("title_" + currentStation.uuid).innerHTML = info.title;
+                        if (info.title) {
+                            fetchCover(info.title);
+                        }
                     }
                     if ('mediaSession' in navigator) {
                         navigator.mediaSession.metadata.artist = info.title;
@@ -515,4 +523,50 @@ function setMenu() {
 function closeSearchResults() {
     document.getElementById('searchResults').remove();
     setMenu();
+}
+
+async function fetchCover(title) {
+    const escapedTitle = encodeURIComponent(title);
+    const url = `/cover?title=${escapedTitle}`;
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.coverUrl) {
+            handleCoverResponse(data);
+        } else {
+            console.warn("Kein Cover gefunden für:", data.searchTerm);
+            handleCoverResponse({ searchTerm: data.searchTerm, coverUrl: null });
+        }
+    } catch (error) {
+        console.error("Fehler beim Abrufen des Covers:", error);
+    }
+}
+
+function handleCoverResponse(data) {
+    const imgElement = document.getElementById("coverImage");
+
+    if (data.coverUrl) {
+        document.getElementById("favicon_" + currentStation.uuid).src=data.coverUrl;
+        document.getElementById("favicon_" + currentStation.uuid).classList.add("cover");
+
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.metadata = new MediaMetadata({
+                artwork: [{
+                    src: data.coverUrl, type: 'image/png'
+                }]
+            });
+        }
+    } else {
+        document.getElementById("favicon_" + currentStation.uuid).src=currentStation.favicon;
+        document.getElementById("favicon_" + currentStation.uuid).classList.remove("cover");
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.metadata = new MediaMetadata({
+                artwork: [{
+                    src: currentStation.favicon, type: 'image/png'
+                }]
+            });
+        }
+    }
 }

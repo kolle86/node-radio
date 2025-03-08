@@ -30,3 +30,13 @@ a img{
     width: 56px;
     height: 56px;
 }
+
+.cover {
+    width: 192px;
+    height: 192px;
+    transition: all 0.3s ease-in-out;
+}
+
+.list-group-item.active{
+    background-color: #2b3035 !important;
+}
