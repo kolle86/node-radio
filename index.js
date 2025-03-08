@@ -12,6 +12,7 @@ const path = require("path");
 const { randomBytes } = require("node:crypto");
 require('dotenv').config();
 const password = process.env.PASSWORD;
+const port = 3000;
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -158,12 +159,15 @@ app.get("/cover", async (req, res) => {
         return res.status(400).json({ error: "Bitte einen Songtitel angeben." });
     }
     
-    let searchTerm = title;
-    const parts = title.split(" - ").map(str => str.trim());
-    if (parts.length === 2) {
-        searchTerm = `${parts[0]} ${parts[1]}`;
+    let searchTerm = title.replace(/\(.*?\)/g, "").trim(); 
+    const parts = searchTerm.split(" - ").map(str => str.trim());
+    if (parts.length >= 2) {
+        let artist = parts.slice(0, -1).join(" - "); 
+        let song = parts[parts.length - 1]; 
+
+        artist = artist.split(/ x | & | feat\.?/i)[0].trim();
+        searchTerm = `${artist} ${song}`;
     }
-    
     try {
         const response = await axios.get("https://itunes.apple.com/search", {
             params: {
@@ -186,4 +190,8 @@ app.get("/cover", async (req, res) => {
     }
 });
 
-app.listen(3000, '0.0.0.0');
+// Server starten
+app.listen(port, () => {
+    console.log(`Server is running on http://localhost:${port}`);
+});
+

@@ -202,7 +202,7 @@ function renderFavourites() {
     } else {
         var newFav = document.createElement("li");
         newFav.innerHTML = 'Favourites are empty. <br>Select the upper right dropdown and search for stations. <br>Select a station from the results and add it to the favourites via the dropdown.';
-        newFav.setAttribute("class", "list-group-item fav");
+        newFav.setAttribute("class", "list-group-item");
         document.getElementById("favourites").appendChild(newFav);
 
     }
