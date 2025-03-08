@@ -169,7 +169,7 @@ app.get("/cover", async (req, res) => {
             params: {
                 term: searchTerm,
                 media: "music",
-                entity: "musicTrack",
+                //entity: "musicTrack",
                 entity: "album",
                 limit: 1
             }

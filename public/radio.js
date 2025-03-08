@@ -422,7 +422,9 @@ function updateUI() {
     var items = document.getElementsByClassName('list-group-item');
     for (let i = 0; i < items.length; i++) {
         items[i].classList.remove('active');
-        document.getElementById("favicon_" + items[i].id).classList.remove("cover");
+        if(document.getElementById("favicon_" + items[i].id)){
+            document.getElementById("favicon_" + items[i].id).classList.remove("cover");
+        }
         if (document.getElementById("title_" + items[i].id) != null && items[i].id != currentStation.uuid) {
             document.getElementById("favicon_" + items[i].id).src=favourites.stations[i].favicon;
             document.getElementById("title_" + items[i].id).innerHTML = "";
