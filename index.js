@@ -175,6 +175,7 @@ app.get("/cover", async (req, res) => {
                 media: "music",
                 //entity: "musicTrack",
                 entity: "album",
+                //entity: "song",
                 limit: 1
             }
         });
