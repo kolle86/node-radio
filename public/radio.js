@@ -422,15 +422,18 @@ function updateUI() {
     var items = document.getElementsByClassName('list-group-item');
     for (let i = 0; i < items.length; i++) {
         items[i].classList.remove('active');
-        if(document.getElementById("favicon_" + items[i].id)){
-            document.getElementById("favicon_" + items[i].id).classList.remove("cover");
+        if(items[i].classList.contains("fav")){
+            items[i].childNodes[2].classList.remove('cover');
+            items[i].childNodes[2].src = favourites.stations.find(station => station.uuid === items[i].id).favicon;
         }
         if (document.getElementById("title_" + items[i].id) != null && items[i].id != currentStation.uuid) {
-            document.getElementById("favicon_" + items[i].id).src=favourites.stations[i].favicon;
             document.getElementById("title_" + items[i].id).innerHTML = "";
             document.getElementById("status_" + items[i].id).classList.remove("bi-play-circle", "bi-pause-circle", "spinner-border", "bi-x-circle");
         }
         if (items[i].id == currentStation.uuid) {
+            if(items[i].classList.contains("fav")){
+                items[i].childNodes[2].classList.add('cover');
+            }        
             items[i].classList.add('active');
             if (document.getElementById("status_" + currentStation.uuid) != null && !radio.paused) {
                 setStatusIcon("bi-pause-circle");
@@ -547,12 +550,8 @@ async function fetchCover(title) {
 }
 
 function handleCoverResponse(data) {
-    const imgElement = document.getElementById("coverImage");
-
     if (data.coverUrl) {
         document.getElementById("favicon_" + currentStation.uuid).src=data.coverUrl;
-        document.getElementById("favicon_" + currentStation.uuid).classList.add("cover");
-
         if ('mediaSession' in navigator) {
             navigator.mediaSession.metadata = new MediaMetadata({
                 artwork: [{
@@ -562,7 +561,6 @@ function handleCoverResponse(data) {
         }
     } else {
         document.getElementById("favicon_" + currentStation.uuid).src=currentStation.favicon;
-        document.getElementById("favicon_" + currentStation.uuid).classList.remove("cover");
         if ('mediaSession' in navigator) {
             navigator.mediaSession.metadata = new MediaMetadata({
                 artwork: [{
