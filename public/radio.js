@@ -367,7 +367,15 @@ radio.onpause = function () {
         nowPlaying.trackStream(undefined);
         if (document.getElementById("title_" + currentStation.uuid) != null) {
             document.getElementById("title_" + currentStation.uuid).innerHTML = "Paused";
-            document.getElementById(currentStation.uuid).childNodes[2].src = currentStation.favicon;
+            document.getElementById("favicon_" + currentStation.uuid).src = currentStation.favicon;
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: currentStation.name,
+                    artwork: [{
+                        src: currentStation.favicon, type: 'image/png'
+                    }]
+                });
+            }
             setStatusIcon("bi-play-circle");
         }
         document.title = currentStation.name;
@@ -424,9 +432,9 @@ function updateUI() {
     for (let i = 0; i < items.length; i++) {
         items[i].classList.remove('active');
         if(items[i].classList.contains("fav")){
-            if(items[i].childNodes[2].classList.contains("cover")){
-                items[i].childNodes[2].classList.remove('cover');
-                items[i].childNodes[2].src = favourites.stations.find(station => station.uuid === items[i].id).favicon;
+            if(document.getElementById("favicon_" + items[i].id).classList.contains("cover")){
+                document.getElementById("favicon_" + items[i].id).classList.remove('cover');
+                document.getElementById("favicon_" + items[i].id).src = favourites.stations.find(station => station.uuid === items[i].id).favicon;
             }
         }
         if (document.getElementById("title_" + items[i].id) != null && items[i].id != currentStation.uuid) {
@@ -489,7 +497,6 @@ function updateUI() {
         }
     } else {
         if (document.getElementById("title_" + currentStation.uuid) != null) {
-            console.log(radio.paused)
             document.getElementById("title_" + currentStation.uuid).innerHTML = "Paused";
             setStatusIcon("bi-play-circle");
         }
