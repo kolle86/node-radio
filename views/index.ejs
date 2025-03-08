@@ -45,6 +45,15 @@
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="bi bi-box-arrow-left dropdown-item" href="/logout"> Logout</a></li>
                         <li><hr class="dropdown-divider"></li>
+                        <li><h5 class="dropdown-header">
+                            v<%= version.appVersion %>
+                            <% if (!version.isUpToDate ){ %>
+                                <span class="text-warning">
+                                    (update available)
+                                </span>
+                            <%}%>
+                        </h5>
+                        </li>
                         <li><a class="bi bi-github dropdown-item" target="_blank" href="https://github.com/kolle86/node-radio"> NodeRadio Repo</a></li>
                     </ul>
                 </div>
