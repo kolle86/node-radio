@@ -367,6 +367,7 @@ radio.onpause = function () {
         nowPlaying.trackStream(undefined);
         if (document.getElementById("title_" + currentStation.uuid) != null) {
             document.getElementById("title_" + currentStation.uuid).innerHTML = "Paused";
+            document.getElementById(currentStation.uuid).childNodes[2].src = currentStation.favicon;
             setStatusIcon("bi-play-circle");
         }
         document.title = currentStation.name;
