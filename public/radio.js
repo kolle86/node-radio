@@ -423,8 +423,10 @@ function updateUI() {
     for (let i = 0; i < items.length; i++) {
         items[i].classList.remove('active');
         if(items[i].classList.contains("fav")){
-            items[i].childNodes[2].classList.remove('cover');
-            items[i].childNodes[2].src = favourites.stations.find(station => station.uuid === items[i].id).favicon;
+            if(items[i].childNodes[2].classList.contains("cover")){
+                items[i].childNodes[2].classList.remove('cover');
+                items[i].childNodes[2].src = favourites.stations.find(station => station.uuid === items[i].id).favicon;
+            }
         }
         if (document.getElementById("title_" + items[i].id) != null && items[i].id != currentStation.uuid) {
             document.getElementById("title_" + items[i].id).innerHTML = "";
