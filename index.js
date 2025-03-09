@@ -13,6 +13,7 @@ const { randomBytes } = require("node:crypto");
 require('dotenv').config();
 const password = process.env.PASSWORD;
 const port = 3000;
+let album_cover_cache = { query: "", response: null };
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -30,7 +31,7 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     rolling: true,
-    cookie: { maxAge: 7*24*60*60*1000 }
+    cookie: { maxAge: 7 * 24 * 60 * 60 * 1000 }
 }));
 
 app.use((req, res, next) => {
@@ -51,10 +52,10 @@ async function getLatestGitHubVersion() {
     }
 }
 
-app.get('/', async(req, res) => {
+app.get('/', async (req, res) => {
 
     const isLoggedIn = req.session.isLoggedIn;
-    
+
     if (isLoggedIn) {
         const isUpToDate = packageJson.version === await getLatestGitHubVersion();
         const version = ({
@@ -62,11 +63,11 @@ app.get('/', async(req, res) => {
             isUpToDate,
         });
         data = null;
-        res.render('index', {data, version});
+        res.render('index', { data, version });
     } else {
-        if(password === undefined){
+        if (password === undefined) {
             res.send("No password set. Set password via environment (-e PASSWORD)")
-        }else{
+        } else {
             res.render('login');
         }
     }
@@ -75,19 +76,19 @@ app.get('/', async(req, res) => {
 app.post('/login', async (req, res) => {
     var isValidUser = false;
 
-    if(req.body.password == password){
-      req.session.isLoggedIn = true;
-      res.redirect("/"); 
-    }else {
-      var login_error = true;
-      res.render('login', {login_error});
+    if (req.body.password == password) {
+        req.session.isLoggedIn = true;
+        res.redirect("/");
+    } else {
+        var login_error = true;
+        res.render('login', { login_error });
     }
-      
+
 });
 
 app.post('/', async (req, res) => {
     const isLoggedIn = req.session.isLoggedIn;
-    
+
     if (isLoggedIn) {
         const isUpToDate = packageJson.version === await getLatestGitHubVersion();
         const version = ({
@@ -95,17 +96,17 @@ app.post('/', async (req, res) => {
             isUpToDate,
         });
         search = req.body.searchterm;
-        if(search != "" && search != null){
+        if (search != "" && search != null) {
             let filter = {
                 by: 'name',         // search in tag
                 searchterm: search // term in tag
             }
             RadioBrowser.getStations(filter)
-                .then(data => res.render('index', { data,  search, version}))
+                .then(data => res.render('index', { data, search, version }))
                 .catch(error => console.error(error))
-        }else{
+        } else {
             res.redirect("/");
-        }    
+        }
     } else {
         res.render('login');
     }
@@ -114,11 +115,11 @@ app.post('/', async (req, res) => {
 
 app.post('/setfavs', (req, res) => {
     const isLoggedIn = req.session.isLoggedIn;
-    
+
     if (isLoggedIn) {
         try {
-            fs.writeFileSync(favsFile, JSON.stringify(req.body))        
-          } catch (error) {
+            fs.writeFileSync(favsFile, JSON.stringify(req.body))
+        } catch (error) {
             console.error('Error writing favourites:', error);
         }
         res.send("ok")
@@ -130,11 +131,11 @@ app.post('/setfavs', (req, res) => {
 
 app.get('/getfavs', (req, res) => {
     const isLoggedIn = req.session.isLoggedIn;
-    
+
     if (isLoggedIn) {
         try {
             res.send(JSON.parse(fs.readFileSync(favsFile)));
-          } catch (error) {
+        } catch (error) {
             console.error('Error reading favourites:', error);
         }
     } else {
@@ -158,14 +159,18 @@ app.get("/cover", async (req, res) => {
     if (!title) {
         return res.status(400).json({ error: "Bitte einen Songtitel angeben." });
     }
-    
-    let searchTerm = title.replace(/\(.*?\)/g, "").trim(); 
+
+    if (album_cover_cache.query === title && album_cover_cache.response) {
+        return res.json(album_cover_cache.response);
+    }
+
+    let searchTerm = title.replace(/\(.*?\)/g, "").trim();
     const parts = searchTerm.split(" - ").map(str => str.trim());
     if (parts.length >= 2) {
-        let artist = parts.slice(0, -1).join(" - "); 
-        let song = parts[parts.length - 1]; 
-
-        artist = artist.split(/ x | & | feat\.?/i)[0].trim();
+        let artist = parts.slice(0, -1).join(" - ");
+        let song = parts[parts.length - 1];
+        artist = artist.replace(/\s*(feat\.?|x|&|vs\.)\s+/gi, ", ").replace(/,/g, "").trim(); //all artists
+        //artist = artist.split(/ x | & | feat\.?/i)[0].trim(); //only first artist
         searchTerm = `${artist} ${song}`;
     }
     try {
@@ -179,13 +184,17 @@ app.get("/cover", async (req, res) => {
                 limit: 1
             }
         });
-        
+
+        let result;
         if (response.data.resultCount > 0) {
             const coverUrl = response.data.results[0].artworkUrl100.replace("100x100bb", "500x500bb");
-            res.json({ searchTerm, coverUrl });
+            result = { searchTerm, coverUrl };
         } else {
-            res.json({ searchTerm, coverUrl: null }); // Leeres Ergebnis statt 404
+            result = { searchTerm, coverUrl: null }; // Leeres Ergebnis statt 404
         }
+
+        album_cover_cache = { query: title, response: result };
+        res.json(result);
     } catch (error) {
         res.status(500).json({ error: "Fehler beim Abrufen des Covers." });
     }

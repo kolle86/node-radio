@@ -27,6 +27,10 @@ body{
 
 a img{
     object-fit: cover;
+    transition: all 0.3s;
+}
+    
+.station-icon{        
     width: 56px;
     height: 56px;
 }
@@ -34,7 +38,6 @@ a img{
 .cover {
     width: 192px;
     height: 192px;
-    transition: all 0.3s ease-in-out;
 }
 
 .list-group-item.active{

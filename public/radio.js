@@ -192,7 +192,7 @@ function renderFavourites() {
             newFav.innerHTML = '<div class="ms-2 me-auto"><div class="fw-bold">' + favourites.stations[index].name + '</div>\
                 <div class="title"><span class="me-1 bi" id="status_' + favourites.stations[index].uuid + '"></span>\
                 <span id="title_' + favourites.stations[index].uuid + '"></span></div></div>\
-                <img id="favicon_' + favourites.stations[index].uuid + '" class="rounded border" src="' + favourites.stations[index].favicon + '">';
+                <img id="favicon_' + favourites.stations[index].uuid + '" class="rounded border station-icon" src="' + favourites.stations[index].favicon + '">';
             newFav.href = "javascript:void(0);"
             newFav.id = favourites.stations[index].uuid;
             newFav.setAttribute("class", "list-group-item list-group-item-action d-flex justify-content-between align-items-start fav");
@@ -434,6 +434,7 @@ function updateUI() {
         if(items[i].classList.contains("fav")){
             if(document.getElementById("favicon_" + items[i].id).classList.contains("cover")){
                 document.getElementById("favicon_" + items[i].id).classList.remove('cover');
+                document.getElementById("favicon_" + items[i].id).classList.add('station-icon');
                 document.getElementById("favicon_" + items[i].id).src = favourites.stations.find(station => station.uuid === items[i].id).favicon;
             }
         }
@@ -443,7 +444,8 @@ function updateUI() {
         }
         if (items[i].id == currentStation.uuid) {
             if(items[i].classList.contains("fav")){
-                items[i].childNodes[2].classList.add('cover');
+                document.getElementById("favicon_" + items[i].id).classList.remove('station-icon');
+                document.getElementById("favicon_" + items[i].id).classList.add('cover');
             }        
             items[i].classList.add('active');
             if (document.getElementById("status_" + currentStation.uuid) != null && !radio.paused) {
