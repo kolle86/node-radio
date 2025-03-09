@@ -164,7 +164,8 @@ app.get("/cover", async (req, res) => {
         return res.json(album_cover_cache.response);
     }
 
-    let searchTerm = title.replace(/\(.*?\)/g, "").trim();
+    //let searchTerm = title.replace(/\(.*?\)/g, "").trim();
+    let searchTerm = title.replace(/[\(\[][^)\]]*[\)\]]/g, "").trim();
     const parts = searchTerm.split(" - ").map(str => str.trim());
     if (parts.length >= 2) {
         let artist = parts.slice(0, -1).join(" - ");
@@ -190,7 +191,7 @@ app.get("/cover", async (req, res) => {
             const coverUrl = response.data.results[0].artworkUrl100.replace("100x100bb", "500x500bb");
             result = { searchTerm, coverUrl };
         } else {
-            result = { searchTerm, coverUrl: null }; // Leeres Ergebnis statt 404
+            result = { searchTerm, coverUrl: null }; 
         }
 
         album_cover_cache = { query: title, response: result };
@@ -200,8 +201,6 @@ app.get("/cover", async (req, res) => {
     }
 });
 
-// Server starten
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
-
