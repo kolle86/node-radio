@@ -42,6 +42,10 @@ app.use((req, res, next) => {
     next();
 });
 
+/**
+ * Fetches the latest version of the application from GitHub.
+ * @returns {Promise<string|null>} The latest version tag or null if an error occurs.
+ */
 async function getLatestGitHubVersion() {
     try {
         const response = await axios.get(`https://api.github.com/repos/kolle86/node-radio/releases/latest`);
@@ -52,6 +56,12 @@ async function getLatestGitHubVersion() {
     }
 }
 
+/**
+ * Renders the home page or login page based on authentication status.
+ * @route GET /
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ */
 app.get('/', async (req, res) => {
 
     const isLoggedIn = req.session.isLoggedIn;
@@ -73,6 +83,12 @@ app.get('/', async (req, res) => {
     }
 })
 
+/**
+ * Handles user login by validating the password.
+ * @route POST /login
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ */
 app.post('/login', async (req, res) => {
     var isValidUser = false;
 
@@ -86,6 +102,12 @@ app.post('/login', async (req, res) => {
 
 });
 
+/**
+ * Searches for radio stations and renders the index page with results.
+ * @route POST /
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ */
 app.post('/', async (req, res) => {
     const isLoggedIn = req.session.isLoggedIn;
 
@@ -113,6 +135,12 @@ app.post('/', async (req, res) => {
 
 });
 
+/**
+ * Saves favorite radio stations to a file.
+ * @route POST /setfavs
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ */
 app.post('/setfavs', (req, res) => {
     const isLoggedIn = req.session.isLoggedIn;
 
@@ -129,6 +157,12 @@ app.post('/setfavs', (req, res) => {
 
 });
 
+/**
+ * Retrieves favorite radio stations from a file.
+ * @route GET /getfavs
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ */
 app.get('/getfavs', (req, res) => {
     const isLoggedIn = req.session.isLoggedIn;
 
@@ -144,6 +178,12 @@ app.get('/getfavs', (req, res) => {
 
 });
 
+/**
+ * Logs out the user by destroying the session.
+ * @route GET /logout
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ */
 app.get('/logout', (req, res) => {
     req.session.destroy((err) => {
         if (err) {
@@ -154,6 +194,12 @@ app.get('/logout', (req, res) => {
     });
 });
 
+/**
+ * Fetches album cover art for a given song title.
+ * @route GET /cover
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ */
 app.get("/cover", async (req, res) => {
     const { title } = req.query;
     if (!title) {
