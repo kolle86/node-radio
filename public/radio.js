@@ -1,4 +1,4 @@
-// Konstanten und Variablen global definieren
+// Define global constants and variables
 const modal = new bootstrap.Modal(document.getElementById('editStationModal'), {});
 const liveToast = document.getElementById('liveToast');
 const toast = bootstrap.Toast.getOrCreateInstance(liveToast);
@@ -7,29 +7,29 @@ const currentStation = { url: null, name: null, favicon: null, uuid: null };
 let favourites;
 let playPromise;
 
-// Audio-Visualizer initialisieren
+// Initialize audio visualizer
 const audioMotion = initAudioMotion();
 
-// Media Session API einrichten, wenn verfügbar
+// Set up Media Session API if available
 setupMediaSessionHandlers();
 
-// Initiale Lautstärkeeinstellungen
+// Initial volume settings
 initVolumeSettings();
 
-// Metadaten-Client initialisieren
+// Initialize metadata client
 const nowPlaying = RadioliseMetadata.createMetadataClient({
     url: 'wss://backend.radiolise.com/api/data-service',
 });
 
-// Event-Listener für Dropdown-Items
+// Event listeners for dropdown items
 setupDropdownListeners();
 
-// Favoriten laden
+// Load favorites
 getFavs();
 
 /**
- * Initialisiert den AudioMotion-Analyzer
- * @returns {Object} AudioMotion-Instanz
+ * Initializes the AudioMotion analyzer
+ * @returns {Object} AudioMotion instance
  */
 function initAudioMotion() {
     const analyzer = new AudioMotionAnalyzer(
@@ -50,7 +50,7 @@ function initAudioMotion() {
     });
     analyzer.setOptions({ gradient: 'myGradient' });
 
-    // Visualizer-Einstellungen aus dem localStorage laden
+    // Load visualizer settings from localStorage
     if (localStorage.getItem("visualizer") === "0") {
         analyzer.toggleAnalyzer();
         document.getElementById("visualizer").style.visibility = "hidden";
@@ -61,7 +61,7 @@ function initAudioMotion() {
 }
 
 /**
- * Richtet die Media Session Handler ein
+ * Sets up the Media Session handlers
  */
 function setupMediaSessionHandlers() {
     if (!('mediaSession' in navigator)) return;
@@ -80,8 +80,8 @@ function setupMediaSessionHandlers() {
 }
 
 /**
- * Wechselt zu einem benachbarten Sender
- * @param {number} direction - Richtung (-1 für vorherigen, 1 für nächsten)
+ * Switches to an adjacent station
+ * @param {number} direction - Direction (-1 for previous, 1 for next)
  */
 function navigateStation(direction) {
     if (!favourites || !favourites.stations || !currentStation.uuid) return;
@@ -100,7 +100,7 @@ function navigateStation(direction) {
 }
 
 /**
- * Initialisiert die Lautstärkeeinstellungen aus dem localStorage
+ * Initializes volume settings from localStorage
  */
 function initVolumeSettings() {
     const volumeRange = document.getElementById('volumeRange');
@@ -116,18 +116,18 @@ function initVolumeSettings() {
 }
 
 /**
- * Event-Listener für Dropdown-Items einrichten
+ * Sets up event listeners for dropdown items
  */
 function setupDropdownListeners() {
     document.querySelectorAll('.dropdown-item.no-close').forEach(item => {
         item.addEventListener('click', event => {
-            event.stopPropagation(); // Verhindert das Schließen des Dropdowns
+            event.stopPropagation(); // Prevents dropdown from closing
         });
     });
 }
 
 /**
- * Visualizer ein-/ausschalten
+ * Toggles visualizer on/off
  */
 function toggleVisualizer() {
     audioMotion.toggleAnalyzer();
@@ -139,21 +139,21 @@ function toggleVisualizer() {
 }
 
 /**
- * Klicken auf einen Sender
- * @param {string} url - Stream-URL
- * @param {string} artwork - Favicon-URL
- * @param {string} station - Stationsname
- * @param {string} stationuuid - Stations-UUID
+ * Click on a station
+ * @param {string} url - Stream URL
+ * @param {string} artwork - Favicon URL
+ * @param {string} station - Station name
+ * @param {string} stationuuid - Station UUID
  */
 function clickStation(url, artwork, station, stationuuid) {
     if (currentStation.uuid !== stationuuid) {
-        // Neuer Sender wurde ausgewählt
+        // New station was selected
         Object.assign(currentStation, { name: station, url: url, favicon: artwork, uuid: stationuuid });
         document.title = station;
         radio.src = url;
         playPromise = radio.play();
     } else {
-        // Derselbe Sender wurde ausgewählt - Play/Pause umschalten
+        // Same station was selected - toggle play/pause
         if (radio.paused) {
             radio.load();
         } else {
@@ -168,8 +168,8 @@ function clickStation(url, artwork, station, stationuuid) {
 }
 
 /**
- * Favoriten-Aktion durchführen (hinzufügen/entfernen)
- * @param {string} action - "add" oder "remove"
+ * Perform favorites action (add/remove)
+ * @param {string} action - "add" or "remove"
  */
 function favouritesAction(action) {
     if (!currentStation.url) return;
@@ -202,7 +202,7 @@ function favouritesAction(action) {
 }
 
 /**
- * Speichert Favoriten und aktualisiert die Anzeige
+ * Saves favorites and updates the display
  */
 function saveFavouritesAndUpdate() {
     fetch("/setfavs", {
@@ -221,10 +221,10 @@ function saveFavouritesAndUpdate() {
 }
 
 /**
- * Favoriten rendern
+ * Renders favorites
  */
 function renderFavourites() {
-    // Bestehende Favoriten entfernen
+    // Remove existing favorites
     document.querySelectorAll(".fav").forEach(element => element.remove());
     
     const favouritesContainer = document.getElementById("favourites");
@@ -237,7 +237,7 @@ function renderFavourites() {
         return;
     }
 
-    // Favoriten hinzufügen
+    // Add favorites
     favourites.stations.forEach(station => {
         const newFav = document.createElement("a");
         newFav.innerHTML = `
@@ -259,7 +259,7 @@ function renderFavourites() {
 }
 
 /**
- * Favoriten laden
+ * Load favorites
  */
 async function getFavs() {
     try {
@@ -275,8 +275,8 @@ async function getFavs() {
 }
 
 /**
- * Favoriten verschieben
- * @param {string} direction - "up" oder "down"
+ * Move favorite
+ * @param {string} direction - "up" or "down"
  */
 function moveFav(direction) {
     const stationElement = document.getElementById(currentStation.uuid);
@@ -299,14 +299,14 @@ function moveFav(direction) {
 }
 
 /**
- * Lautstärke ändern
- * @param {number} value - Lautstärkewert (0-100)
+ * Change volume
+ * @param {number} value - Volume value (0-100)
  */
 function changeVolume(value) {
     radio.volume = value / 100;
     localStorage.setItem("volume", radio.volume);
     
-    // Icon entsprechend anpassen
+    // Adjust icon accordingly
     let iconClass = "bi-volume-up";
     if (value === 0) {
         iconClass = "bi-volume-mute";
@@ -318,8 +318,8 @@ function changeVolume(value) {
 }
 
 /**
- * Lautstärke-Icon ersetzen
- * @param {string} newIcon - CSS-Klasse des neuen Icons
+ * Replace volume icon
+ * @param {string} newIcon - CSS class of the new icon
  */
 function replaceVolumeIcon(newIcon) {
     const volumeIcon = document.getElementById("volume_icon");
@@ -331,7 +331,7 @@ function replaceVolumeIcon(newIcon) {
 }
 
 /**
- * Stummschalten umschalten
+ * Toggle mute
  */
 function mute() {
     const volumeRange = document.getElementById('volumeRange');
@@ -346,7 +346,7 @@ function mute() {
 }
 
 /**
- * Bearbeitungsdialog anzeigen
+ * Show edit dialog
  */
 function toggleEditModal() {
     const stationElement = document.getElementById(currentStation.uuid);
@@ -360,14 +360,14 @@ function toggleEditModal() {
 }
 
 /**
- * Bearbeiteten Favoriten speichern
+ * Save edited favorite
  */
 function saveEditedFavourite() {
     const stationUuid = document.getElementById("editStationUidInput").value;
     const index = favourites.stations.findIndex(s => s.uuid === stationUuid);
     
     if (index !== -1) {
-        // Station aktualisieren
+        // Update station
         const updatedValues = {
             name: document.getElementById("editStationNameInput").value,
             favicon: document.getElementById("editStationFaviconInput").value,
@@ -395,8 +395,8 @@ function saveEditedFavourite() {
 }
 
 /**
- * Toast-Nachricht anzeigen
- * @param {string} message - Anzuzeigende Nachricht
+ * Show toast message
+ * @param {string} message - Message to display
  */
 function newToast(message) {
     document.getElementById("toastMessage").innerHTML = message;
@@ -404,8 +404,8 @@ function newToast(message) {
 }
 
 /**
- * AudioMotion-Modus ermitteln
- * @returns {number} AudioMotion-Modus
+ * Get AudioMotion mode
+ * @returns {number} AudioMotion mode
  */
 function getAudioMotionMode() {
     let mode = 12 - parseInt(window.innerWidth / 100);
@@ -413,7 +413,7 @@ function getAudioMotionMode() {
 }
 
 /**
- * Fenstergrößenänderung behandeln
+ * Handle window resize event
  */
 function resizedWindowEvent() {
     const newMode = getAudioMotionMode();
@@ -423,8 +423,8 @@ function resizedWindowEvent() {
 }
 
 /**
- * Status-Icon setzen
- * @param {string} icon - CSS-Klasse des Icons
+ * Set status icon
+ * @param {string} icon - CSS class of the icon
  */
 function setStatusIcon(icon) {
     if (!currentStation.uuid) return;
@@ -437,10 +437,10 @@ function setStatusIcon(icon) {
 }
 
 /**
- * UI aktualisieren
+ * Update UI
  */
 function updateUI() {
-    // Alle Listeneinträge zurücksetzen und den aktiven markieren
+    // Reset all list items and mark the active one
     const items = document.getElementsByClassName('list-group-item');
     
     for (let i = 0; i < items.length; i++) {
@@ -459,7 +459,7 @@ function updateUI() {
             }
         }
         
-        // Titel und Status zurücksetzen, wenn nicht aktiv
+        // Reset title and status if not active
         const titleElement = document.getElementById("title_" + item.id);
         const statusElement = document.getElementById("status_" + item.id);
         
@@ -471,7 +471,7 @@ function updateUI() {
             statusElement.classList.remove("bi-play-circle", "bi-pause-circle", "spinner-border", "bi-x-circle");
         }
         
-        // Aktiven Sender markieren
+        // Mark active station
         if (item.id === currentStation.uuid) {
             item.classList.add('active');
             
@@ -489,21 +489,21 @@ function updateUI() {
         }
     }
     
-    // Dropdown-Status aktualisieren
+    // Update dropdown status
     updateDropdownStatus();
     
-    // Media Session Metadata aktualisieren
+    // Update Media Session Metadata
     updateMediaSessionMetadata();
     
-    // Track-Informationen abonnieren, wenn ein Sender läuft
+    // Subscribe to track information if a station is playing
     handleTrackInfo();
     
-    // Menüstatus aktualisieren
+    // Update menu status
     setMenu();
 }
 
 /**
- * Dropdown-Status aktualisieren
+ * Update dropdown status
  */
 function updateDropdownStatus() {
     const dropdownStation = document.getElementById("dropdown_station");
@@ -515,7 +515,7 @@ function updateDropdownStatus() {
 }
 
 /**
- * Media Session Metadata aktualisieren
+ * Update Media Session Metadata
  */
 function updateMediaSessionMetadata() {
     if ('mediaSession' in navigator) {
@@ -529,7 +529,7 @@ function updateMediaSessionMetadata() {
 }
 
 /**
- * Track-Informationen behandeln
+ * Handle track information
  */
 function handleTrackInfo() {
     const isActiveFav = document.getElementById(currentStation.uuid)?.classList.contains("fav");
@@ -547,8 +547,8 @@ function handleTrackInfo() {
 }
 
 /**
- * Track-Update behandeln
- * @param {Object} info - Track-Informationen
+ * Handle track update
+ * @param {Object} info - Track information
  */
 function handleTrackUpdate(info) {
     if (info.error) {
@@ -569,14 +569,14 @@ function handleTrackUpdate(info) {
 }
 
 /**
- * Menüstatus setzen
+ * Set menu status
  */
 function setMenu() {
     const menuItems = [
         "menuEdit", "menuAdd", "menuRemove", "moveFavUp", "moveFavDown"
     ];
     
-    // Alle Menüpunkte deaktivieren
+    // Disable all menu items
     menuItems.forEach(id => {
         document.getElementById(id).classList.add("disabled");
     });
@@ -587,19 +587,19 @@ function setMenu() {
     const isActiveFav = activeElement.classList.contains("fav");
     
     if (isActiveFav) {
-        // Favorit ist aktiv
+        // Favorite is active
         document.getElementById("menuEdit").classList.remove("disabled");
         document.getElementById("menuRemove").classList.remove("disabled");
         document.getElementById("moveFavUp").classList.remove("disabled");
         document.getElementById("moveFavDown").classList.remove("disabled");
     } else {
-        // Nicht-Favorit ist aktiv
+        // Non-favorite is active
         document.getElementById("menuAdd").classList.remove("disabled");
     }
 }
 
 /**
- * Suchergebnisse schließen
+ * Close search results
  */
 function closeSearchResults() {
     document.getElementById('searchResults').remove();
@@ -607,8 +607,8 @@ function closeSearchResults() {
 }
 
 /**
- * Cover abrufen
- * @param {string} title - Titel
+ * Fetch cover
+ * @param {string} title - Title
  */
 async function fetchCover(title) {
     const escapedTitle = encodeURIComponent(title);
@@ -619,13 +619,13 @@ async function fetchCover(title) {
         const data = await response.json();
         handleCoverResponse(data);
     } catch (error) {
-        console.error("Fehler beim Abrufen des Covers:", error);
+        console.error("Error fetching cover:", error);
     }
 }
 
 /**
- * Cover-Antwort behandeln
- * @param {Object} data - Cover-Daten
+ * Handle cover response
+ * @param {Object} data - Cover data
  */
 function handleCoverResponse(data) {
     const coverUrl = data.coverUrl || currentStation.favicon;
@@ -640,7 +640,7 @@ function handleCoverResponse(data) {
     }
 }
 
-// Event-Listener
+// Event listeners
 radio.onvolumechange = () => {
     localStorage.setItem("volume", radio.volume);
 };
@@ -696,5 +696,5 @@ radio.onwaiting = () => {
     setStatusIcon("spinner-border");
 };
 
-// Fenstergrößenänderung überwachen
+// Monitor window resize
 window.addEventListener('resize', resizedWindowEvent);
