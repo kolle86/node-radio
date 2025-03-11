@@ -12,7 +12,7 @@ const path = require("path");
 const { randomBytes } = require("node:crypto");
 require('dotenv').config();
 const password = process.env.PASSWORD;
-const port = 3010;
+const port = 3000;
 let album_cover_cache = { query: "", response: null };
 
 app.set('view engine', 'ejs');
