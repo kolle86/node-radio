@@ -12,7 +12,7 @@ const path = require("path");
 const { randomBytes } = require("node:crypto");
 require('dotenv').config();
 const password = process.env.PASSWORD;
-const port = 3000;
+const port = 3010;
 let album_cover_cache = { query: "", response: null };
 
 app.set('view engine', 'ejs');
@@ -23,7 +23,7 @@ app.use("/bootstrap", express.static(path.join(__dirname, "node_modules/bootstra
 app.use("/icons", express.static(path.join(__dirname, "node_modules/bootstrap-icons/font")));
 
 app.use(bodyParser.json());
-app.use(cors())
+app.use(cors());
 
 const sessionSecret = randomBytes(32).toString("hex");
 app.use(session({
@@ -33,6 +33,19 @@ app.use(session({
     rolling: true,
     cookie: { maxAge: 7 * 24 * 60 * 60 * 1000 }
 }));
+
+// Middleware to check if the user is logged in
+const isLoggedIn = (req, res, next) => {
+    if (req.session.isLoggedIn) {
+        next();
+    } else {
+        res.redirect('/login');
+    }
+};
+
+app.get('/login', (req, res) => {
+    res.render('login');
+});
 
 app.use((req, res, next) => {
     if (!fs.existsSync(favsFile)) {
@@ -62,25 +75,14 @@ async function getLatestGitHubVersion() {
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
  */
-app.get('/', async (req, res) => {
-
-    const isLoggedIn = req.session.isLoggedIn;
-
-    if (isLoggedIn) {
-        const isUpToDate = packageJson.version === await getLatestGitHubVersion();
-        const version = ({
-            appVersion: packageJson.version,
-            isUpToDate,
-        });
-        data = null;
-        res.render('index', { data, version });
-    } else {
-        if (password === undefined) {
-            res.send("No password set. Set password via environment (-e PASSWORD)")
-        } else {
-            res.render('login');
-        }
-    }
+app.get('/', isLoggedIn, async (req, res) => {
+    const isUpToDate = packageJson.version === await getLatestGitHubVersion();
+    const version = ({
+        appVersion: packageJson.version,
+        isUpToDate,
+    });
+    data = null;
+    res.render('index', { data, version });
 })
 
 /**
@@ -108,31 +110,24 @@ app.post('/login', async (req, res) => {
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
  */
-app.post('/', async (req, res) => {
-    const isLoggedIn = req.session.isLoggedIn;
-
-    if (isLoggedIn) {
-        const isUpToDate = packageJson.version === await getLatestGitHubVersion();
-        const version = ({
-            appVersion: packageJson.version,
-            isUpToDate,
-        });
-        search = req.body.searchterm;
-        if (search != "" && search != null) {
-            let filter = {
-                by: 'name',         // search in tag
-                searchterm: search // term in tag
-            }
-            RadioBrowser.getStations(filter)
-                .then(data => res.render('index', { data, search, version }))
-                .catch(error => console.error(error))
-        } else {
-            res.redirect("/");
-        }
+app.post('/', isLoggedIn, async (req, res) => {
+    const isUpToDate = packageJson.version === await getLatestGitHubVersion();
+    const version = {
+        appVersion: packageJson.version,
+        isUpToDate,
+    };
+    const search = req.body.searchterm;
+    if (search != "" && search != null) {
+        const filter = {
+            by: 'name',         // search in tag
+            searchterm: search // term in tag
+        };
+        RadioBrowser.getStations(filter)
+            .then(data => res.render('index', { data, search, version }))
+            .catch(error => console.error(error));
     } else {
-        res.render('login');
+        res.redirect("/");
     }
-
 });
 
 /**
@@ -141,20 +136,14 @@ app.post('/', async (req, res) => {
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
  */
-app.post('/setfavs', (req, res) => {
-    const isLoggedIn = req.session.isLoggedIn;
-
-    if (isLoggedIn) {
-        try {
-            fs.writeFileSync(favsFile, JSON.stringify(req.body))
-        } catch (error) {
-            console.error('Error writing favourites:', error);
-        }
-        res.send("ok")
-    } else {
-        res.send('unauthorized');
+app.post('/setfavs', isLoggedIn, (req, res) => {
+    try {
+        fs.writeFileSync(favsFile, JSON.stringify(req.body));
+        res.send("ok");
+    } catch (error) {
+        console.error('Error writing favourites:', error);
+        res.status(500).send('Error saving favorites');
     }
-
 });
 
 /**
@@ -163,19 +152,13 @@ app.post('/setfavs', (req, res) => {
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
  */
-app.get('/getfavs', (req, res) => {
-    const isLoggedIn = req.session.isLoggedIn;
-
-    if (isLoggedIn) {
-        try {
-            res.send(JSON.parse(fs.readFileSync(favsFile)));
-        } catch (error) {
-            console.error('Error reading favourites:', error);
-        }
-    } else {
-        res.send('unauthorized');
+app.get('/getfavs', isLoggedIn, (req, res) => {
+    try {
+        res.send(JSON.parse(fs.readFileSync(favsFile)));
+    } catch (error) {
+        console.error('Error reading favourites:', error);
+        res.status(500).send('Error reading favorites');
     }
-
 });
 
 /**
@@ -200,7 +183,7 @@ app.get('/logout', (req, res) => {
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
  */
-app.get("/cover", async (req, res) => {
+app.get("/cover", isLoggedIn, async (req, res) => {
     const { title } = req.query;
     if (!title) {
         return res.status(400).json({ error: "Bitte einen Songtitel angeben." });
