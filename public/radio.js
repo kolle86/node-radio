@@ -1,469 +1,523 @@
-const modal = new bootstrap.Modal(document.getElementById('editStationModal'), {})
-const liveToast = document.getElementById('liveToast')
-const toast = bootstrap.Toast.getOrCreateInstance(liveToast)
-const currentStation = { url: null, name: null, favicon: null, uuid: null };
-var favourites;
-var playPromise;
-
-const audioMotion = new AudioMotionAnalyzer(
-    document.getElementById('visualizer'),
-    {
-        source: document.getElementById('radio'),
-        height: 48,
-        showScaleX: false,
-        overlay: true,
-        showBgColor: true,
-        bgAlpha: 0,
-        mode: getAudioMotionMode(),
-        //gradient: 'steelblue'
-    }
-);
-
-audioMotion.registerGradient('myGradient', {
-    colorStops: [       // list your gradient colors in this array (at least one color is required)  
-        //{ color: '#2b3035'}, // use `level` to set the max bar amplitude (0 to 1) to use this color
-        { color: '#6c757d' }
-    ]
-});
-audioMotion.setOptions({ gradient: 'myGradient' });
-
-if ('mediaSession' in navigator) {
-    navigator.mediaSession.setActionHandler('play', function () {
-        radio.load();
-    });
-
-    navigator.mediaSession.setActionHandler('previoustrack', function () {
-        var nextStation;
-        for (let i = 0; i < favourites.stations.length; i++) {
-            if (favourites.stations[i].uuid == currentStation.uuid) {
-                nextStation = i - 1;
-                if (nextStation < 0) {
-                    nextStation = favourites.stations.length - 1;
-                }
-                clickStation(favourites.stations[nextStation].url, favourites.stations[nextStation].favicon, favourites.stations[nextStation].name, favourites.stations[nextStation].uuid)
-                break;
-            }
-        }
-    });
-
-    navigator.mediaSession.setActionHandler('nexttrack', function () {
-        var nextStation;
-        for (let i = 0; i < favourites.stations.length; i++) {
-            if (favourites.stations[i].uuid == currentStation.uuid) {
-                nextStation = i + 1;
-                if (nextStation > favourites.stations.length - 1) {
-                    nextStation = 0;
-                }
-                clickStation(favourites.stations[nextStation].url, favourites.stations[nextStation].favicon, favourites.stations[nextStation].name, favourites.stations[nextStation].uuid)
-                break;
-            }
-        }
-    });
-}
-
+// Define global constants and variables
+const modal = new bootstrap.Modal(document.getElementById('editStationModal'), {});
+const liveToast = document.getElementById('liveToast');
+const toast = bootstrap.Toast.getOrCreateInstance(liveToast);
 const radio = document.getElementById("radio");
+const currentStation = { url: null, name: null, favicon: null, uuid: null };
+let favourites;
+let playPromise;
 
-if (localStorage.getItem("volume") != null) {
-    document.getElementById('radio').volume = (localStorage.getItem("volume"));
-    document.getElementById('volumeRange').value = localStorage.getItem("volume") * 100;
-    changeVolume(localStorage.getItem("volume") * 100);
-} else {
-    document.getElementById('volumeRange').value = radio.volume * 100;
-}
-if (localStorage.getItem("visualizer") != null) {
-    if (localStorage.getItem("visualizer") == 0) {
-        audioMotion.toggleAnalyzer();
+// Initialize audio visualizer
+const audioMotion = initAudioMotion();
+
+// Set up Media Session API if available
+setupMediaSessionHandlers();
+
+// Initial volume settings
+initVolumeSettings();
+
+// Initialize metadata client
+const nowPlaying = RadioliseMetadata.createMetadataClient({
+    url: 'wss://backend.radiolise.com/api/data-service',
+});
+
+// Event listeners for dropdown items
+setupDropdownListeners();
+
+// Load favorites
+getFavs();
+
+/**
+ * Initializes the AudioMotion analyzer
+ * @returns {Object} AudioMotion instance
+ */
+function initAudioMotion() {
+    const analyzer = new AudioMotionAnalyzer(
+        document.getElementById('visualizer'),
+        {
+            source: radio,
+            height: 48,
+            showScaleX: false,
+            overlay: true,
+            showBgColor: true,
+            bgAlpha: 0,
+            mode: getAudioMotionMode(),
+        }
+    );
+
+    analyzer.registerGradient('myGradient', {
+        colorStops: [{ color: '#6c757d' }]
+    });
+    analyzer.setOptions({ gradient: 'myGradient' });
+
+    // Load visualizer settings from localStorage
+    if (localStorage.getItem("visualizer") === "0") {
+        analyzer.toggleAnalyzer();
         document.getElementById("visualizer").style.visibility = "hidden";
         document.getElementById("visualizerCheck").checked = false;
     }
+
+    return analyzer;
 }
 
-const nowPlaying = RadioliseMetadata.createMetadataClient({
-    url: 'wss://backend.radiolise.com/api/data-service',
-})
+/**
+ * Sets up the Media Session handlers
+ */
+function setupMediaSessionHandlers() {
+    if (!('mediaSession' in navigator)) return;
 
-document.querySelectorAll('.dropdown-item.no-close').forEach(item => {
-    item.addEventListener('click', function (event) {
-        event.stopPropagation(); // Verhindert das Schließen des Dropdowns
+    navigator.mediaSession.setActionHandler('play', () => {
+        radio.load();
     });
-});
 
-getFavs();
+    navigator.mediaSession.setActionHandler('previoustrack', () => {
+        navigateStation(-1);
+    });
 
+    navigator.mediaSession.setActionHandler('nexttrack', () => {
+        navigateStation(1);
+    });
+}
+
+/**
+ * Switches to an adjacent station
+ * @param {number} direction - Direction (-1 for previous, 1 for next)
+ */
+function navigateStation(direction) {
+    if (!favourites || !favourites.stations || !currentStation.uuid) return;
+    
+    for (let i = 0; i < favourites.stations.length; i++) {
+        if (favourites.stations[i].uuid === currentStation.uuid) {
+            let nextIndex = i + direction;
+            if (nextIndex < 0) nextIndex = favourites.stations.length - 1;
+            if (nextIndex >= favourites.stations.length) nextIndex = 0;
+            
+            const station = favourites.stations[nextIndex];
+            clickStation(station.url, station.favicon, station.name, station.uuid);
+            break;
+        }
+    }
+}
+
+/**
+ * Initializes volume settings from localStorage
+ */
+function initVolumeSettings() {
+    const volumeRange = document.getElementById('volumeRange');
+    
+    if (localStorage.getItem("volume") !== null) {
+        const savedVolume = localStorage.getItem("volume");
+        radio.volume = parseFloat(savedVolume);
+        volumeRange.value = savedVolume * 100;
+        changeVolume(savedVolume * 100);
+    } else {
+        volumeRange.value = radio.volume * 100;
+    }
+}
+
+/**
+ * Sets up event listeners for dropdown items
+ */
+function setupDropdownListeners() {
+    document.querySelectorAll('.dropdown-item.no-close').forEach(item => {
+        item.addEventListener('click', event => {
+            event.stopPropagation(); // Prevents dropdown from closing
+        });
+    });
+}
+
+/**
+ * Toggles visualizer on/off
+ */
 function toggleVisualizer() {
     audioMotion.toggleAnalyzer();
-    visualizer = document.getElementById("visualizer");
-    if (getComputedStyle(visualizer).visibility === 'visible') {
-        visualizer.style.visibility = "hidden";
-        localStorage.setItem("visualizer", 0);
-    } else {
-        visualizer.style.visibility = "visible";
-        localStorage.setItem("visualizer", 1);
-    }
-
+    const visualizer = document.getElementById("visualizer");
+    const isVisible = getComputedStyle(visualizer).visibility === 'visible';
+    
+    visualizer.style.visibility = isVisible ? "hidden" : "visible";
+    localStorage.setItem("visualizer", isVisible ? 0 : 1);
 }
 
+/**
+ * Click on a station
+ * @param {string} url - Stream URL
+ * @param {string} artwork - Favicon URL
+ * @param {string} station - Station name
+ * @param {string} stationuuid - Station UUID
+ */
 function clickStation(url, artwork, station, stationuuid) {
-    if (currentStation.uuid != stationuuid) {
-        currentStation.name = station;
-        currentStation.url = url;
-        currentStation.favicon = artwork;
-        currentStation.uuid = stationuuid;
+    if (currentStation.uuid !== stationuuid) {
+        // New station was selected
+        Object.assign(currentStation, { name: station, url: url, favicon: artwork, uuid: stationuuid });
         document.title = station;
         radio.src = url;
         playPromise = radio.play();
     } else {
+        // Same station was selected - toggle play/pause
         if (radio.paused) {
             radio.load();
-        }
-        else if (!radio.paused) {
+        } else {
             // https://developer.chrome.com/blog/play-request-was-interrupted?hl=de
             if (playPromise !== undefined) {
-                playPromise.then(_ => {
+                playPromise.then(() => {
                     radio.pause();
-                })
-                    .catch(error => {
-                    });
+                }).catch(() => {});
             }
         }
     }
 }
 
+/**
+ * Perform favorites action (add/remove)
+ * @param {string} action - "add" or "remove"
+ */
 function favouritesAction(action) {
-    if (currentStation.url != null) {
-        var data = JSON.stringify({ url: currentStation.url, name: currentStation.name, favicon: currentStation.favicon, uuid: currentStation.uuid });
-        if (action == "remove") {
-            if (confirm("Remove " + currentStation.name + " from favourites?")) {
-                if (document.getElementById(currentStation.uuid) != null) {
-                    if (document.getElementById(currentStation.uuid).classList.contains("active") && document.getElementById(currentStation.uuid).classList.contains("fav")) {
-
-                        for (let i = 0; i < favourites.stations.length; i++) {
-                            if (favourites.stations[i].uuid == currentStation.uuid) {
-                                favourites.stations.splice(i, 1);
-                            }
-                        }
-
-                        fetch("/setfavs", {
-                            method: "POST",
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify(favourites)
-                        }).then(response => {
-                            renderFavourites();
-                            nowPlaying.trackStream(undefined);
-                            updateUI();
-                            setMenu();
-                        });
-
-                    }
-                }
-            }
-        } else if (action == 'add') {
-            if (document.getElementById(currentStation.uuid) != null) {
-                if (document.getElementById(currentStation.uuid).classList.contains("active")) {
-                    if (!document.getElementById(currentStation.uuid).classList.contains("fav")) {
-                        favourites.stations.push(JSON.parse(data));
-                        fetch("/setfavs", {
-                            method: "POST",
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify(favourites)
-                        }).then(response => {
-                            renderFavourites();
-                            updateUI();
-                            setMenu();
-                        });
-                    }
-                }
+    if (!currentStation.url) return;
+    
+    const stationElement = document.getElementById(currentStation.uuid);
+    if (!stationElement?.classList.contains("active")) return;
+    
+    if (action === "remove") {
+        if (!stationElement.classList.contains("fav")) return;
+        
+        if (confirm(`Remove ${currentStation.name} from favourites?`)) {
+            const index = favourites.stations.findIndex(s => s.uuid === currentStation.uuid);
+            if (index !== -1) {
+                favourites.stations.splice(index, 1);
+                saveFavouritesAndUpdate();
+                nowPlaying.trackStream(undefined);
             }
         }
+    } else if (action === 'add') {
+        if (stationElement.classList.contains("fav")) return;
+        
+        favourites.stations.push({
+            url: currentStation.url,
+            name: currentStation.name,
+            favicon: currentStation.favicon,
+            uuid: currentStation.uuid
+        });
+        saveFavouritesAndUpdate();
     }
 }
 
-function renderFavourites() {
-    Array.from(document.getElementsByClassName("fav")).forEach(element => {
-        element.remove();
+/**
+ * Saves favorites and updates the display
+ */
+function saveFavouritesAndUpdate() {
+    fetch("/setfavs", {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(favourites)
+    }).then(() => {
+        renderFavourites();
+        updateUI();
+        setMenu();
+    }).catch(error => {
+        newToast(`Error saving favourites: ${error.message}`);
     });
-    if (favourites.stations.length > 0) {
-        for (let index = 0; index < favourites.stations.length; index++) {
-            var newFav = document.createElement("a");
-            newFav.innerHTML = '<div class="ms-2 me-auto"><div class="fw-bold">' + favourites.stations[index].name + '</div>\
-                <div class="title"><span class="me-1 bi" id="status_' + favourites.stations[index].uuid + '"></span>\
-                <span id="title_' + favourites.stations[index].uuid + '"></span></div></div>\
-                <img id="favicon_' + favourites.stations[index].uuid + '" class="rounded border station-icon" src="' + favourites.stations[index].favicon + '">';
-            newFav.href = "javascript:void(0);"
-            newFav.id = favourites.stations[index].uuid;
-            newFav.setAttribute("class", "list-group-item list-group-item-action d-flex justify-content-between align-items-start fav");
-            newFav.setAttribute("onclick", "clickStation('" + favourites.stations[index].url + "','" + favourites.stations[index].favicon + "','" + favourites.stations[index].name + "','" + favourites.stations[index].uuid + "')");
-            document.getElementById("favourites").appendChild(newFav);
-        }
-    } else {
-        var newFav = document.createElement("li");
-        newFav.innerHTML = 'Favourites are empty. <br>Select the upper right dropdown and search for stations. <br>Select a station from the results and add it to the favourites via the dropdown.';
-        newFav.setAttribute("class", "list-group-item");
-        document.getElementById("favourites").appendChild(newFav);
-
-    }
 }
 
+/**
+ * Renders favorites
+ */
+function renderFavourites() {
+    // Remove existing favorites
+    document.querySelectorAll(".fav").forEach(element => element.remove());
+    
+    const favouritesContainer = document.getElementById("favourites");
+    
+    if (!favourites.stations || favourites.stations.length === 0) {
+        const emptyMessage = document.createElement("li");
+        emptyMessage.innerHTML = 'Favourites are empty. <br>Select the upper right dropdown and search for stations. <br>Select a station from the results and add it to the favourites via the dropdown.';
+        emptyMessage.setAttribute("class", "list-group-item");
+        favouritesContainer.appendChild(emptyMessage);
+        return;
+    }
+
+    // Add favorites
+    favourites.stations.forEach(station => {
+        const newFav = document.createElement("a");
+        newFav.innerHTML = `
+            <div class="ms-2 me-auto">
+                <div class="fw-bold">${station.name}</div>
+                <div class="title">
+                    <span class="me-1 bi" id="status_${station.uuid}"></span>
+                    <span id="title_${station.uuid}"></span>
+                </div>
+            </div>
+            <img id="favicon_${station.uuid}" class="rounded border station-icon" src="${station.favicon}">
+        `;
+        newFav.href = "javascript:void(0);";
+        newFav.id = station.uuid;
+        newFav.setAttribute("class", "list-group-item list-group-item-action d-flex justify-content-between align-items-start fav");
+        newFav.setAttribute("onclick", `clickStation('${station.url}','${station.favicon}','${station.name}','${station.uuid}')`);
+        favouritesContainer.appendChild(newFav);
+    });
+}
+
+/**
+ * Load favorites
+ */
 async function getFavs() {
     try {
         const response = await fetch("/getfavs");
         if (!response.ok) {
             throw new Error(`Response status: ${response.status}`);
         }
-        const json = await response.json();
-        favourites = json;
+        favourites = await response.json();
         renderFavourites();
     } catch (error) {
         newToast(error.message);
     }
 }
 
+/**
+ * Move favorite
+ * @param {string} direction - "up" or "down"
+ */
 function moveFav(direction) {
-    if (document.getElementById(currentStation.uuid) != null) {
-        if (document.getElementById(currentStation.uuid).classList.contains("active") && document.getElementById(currentStation.uuid).classList.contains("fav")) {
-            for (let i = 0; i < favourites.stations.length; i++) {
-                if (favourites.stations[i].uuid == currentStation.uuid) {
-                    var item = favourites.stations.splice(i, 1)[0];
-                    if (direction == "up") {
-                        if (i - 1 < 0) {
-                            favourites.stations.push(item);
-                        } else {
-                            favourites.stations.splice(i - 1, 0, item);
-                        }
-                    } else {
-                        if (i + 1 > favourites.stations.length) {
-                            favourites.stations.unshift(item);
-                        } else {
-                            favourites.stations.splice(i + 1, 0, item);
-                        }
-                    }
-                    break;
-                }
-            }
-            fetch("/setfavs", {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(favourites)
-            }).then(response => {
-                renderFavourites();
-                updateUI();
-                setMenu();
-            });
-        }
-    }
-}
-
-
-function changeVolume(value) {
-    document.getElementById('radio').volume = (value / 100);
-}
-
-function changeVolume(value) {
-    document.getElementById('radio').volume = (value / 100);
-    if (value >= 50) {
-        replaceVolumeIcon("bi-volume-up");
-    } else if (value > 0 && value <= 49) {
-        replaceVolumeIcon("bi-volume-down");
-    } else if (value == 0) {
-        replaceVolumeIcon("bi-volume-mute");
-    }
-}
-
-function replaceVolumeIcon(newIcon) {
-    document.getElementById("volume_icon").classList.replace("bi-volume-up", newIcon);
-    document.getElementById("volume_icon").classList.replace("bi-volume-down", newIcon);
-    document.getElementById("volume_icon").classList.replace("bi-volume-mute", newIcon);
-}
-
-function mute() {
-    if (document.getElementById('radio').muted) {
-        document.getElementById('radio').muted = false;
-        document.getElementById('volumeRange').disabled = false;
-        changeVolume(parseInt(document.getElementById('radio').volume * 100));
+    const stationElement = document.getElementById(currentStation.uuid);
+    if (!stationElement?.classList.contains("active") || !stationElement?.classList.contains("fav")) return;
+    
+    const index = favourites.stations.findIndex(s => s.uuid === currentStation.uuid);
+    if (index === -1) return;
+    
+    const item = favourites.stations.splice(index, 1)[0];
+    
+    if (direction === "up") {
+        const newIndex = index === 0 ? favourites.stations.length : index - 1;
+        favourites.stations.splice(newIndex, 0, item);
     } else {
-        document.getElementById('radio').muted = true;
-        document.getElementById('volumeRange').disabled = true;
-        replaceVolumeIcon('bi-volume-mute')
+        const newIndex = index >= favourites.stations.length ? 0 : index + 1;
+        favourites.stations.splice(newIndex, 0, item);
+    }
+    
+    saveFavouritesAndUpdate();
+}
+
+/**
+ * Change volume
+ * @param {number} value - Volume value (0-100)
+ */
+function changeVolume(value) {
+    radio.volume = value / 100;
+    localStorage.setItem("volume", radio.volume);
+    
+    // Adjust icon accordingly
+    let iconClass = "bi-volume-up";
+    if (value === 0) {
+        iconClass = "bi-volume-mute";
+    } else if (value < 50) {
+        iconClass = "bi-volume-down";
+    }
+    
+    replaceVolumeIcon(iconClass);
+}
+
+/**
+ * Replace volume icon
+ * @param {string} newIcon - CSS class of the new icon
+ */
+function replaceVolumeIcon(newIcon) {
+    const volumeIcon = document.getElementById("volume_icon");
+    ["bi-volume-up", "bi-volume-down", "bi-volume-mute"].forEach(cls => {
+        if (volumeIcon.classList.contains(cls)) {
+            volumeIcon.classList.replace(cls, newIcon);
+        }
+    });
+}
+
+/**
+ * Toggle mute
+ */
+function mute() {
+    const volumeRange = document.getElementById('volumeRange');
+    radio.muted = !radio.muted;
+    volumeRange.disabled = radio.muted;
+    
+    if (radio.muted) {
+        replaceVolumeIcon('bi-volume-mute');
+    } else {
+        changeVolume(parseInt(radio.volume * 100));
     }
 }
 
+/**
+ * Show edit dialog
+ */
 function toggleEditModal() {
-    if (document.getElementById(currentStation.uuid) != null) {
-        if (document.getElementById(currentStation.uuid).classList.contains("active")) {
-            if (document.getElementById(currentStation.uuid).classList.contains("fav")) {
-                document.getElementById("editStationNameInput").value = currentStation.name;
-                document.getElementById("editStationFaviconInput").value = currentStation.favicon;
-                document.getElementById("editStationURLInput").value = currentStation.url;
-                document.getElementById("editStationUidInput").value = currentStation.uuid;
-                modal.show();
-            }
-        }
-    }
+    const stationElement = document.getElementById(currentStation.uuid);
+    if (!stationElement?.classList.contains("active") || !stationElement?.classList.contains("fav")) return;
+    
+    document.getElementById("editStationNameInput").value = currentStation.name;
+    document.getElementById("editStationFaviconInput").value = currentStation.favicon;
+    document.getElementById("editStationURLInput").value = currentStation.url;
+    document.getElementById("editStationUidInput").value = currentStation.uuid;
+    modal.show();
 }
 
+/**
+ * Save edited favorite
+ */
 function saveEditedFavourite() {
-    for (let i = 0; i < favourites.stations.length; i++) {
-        if (favourites.stations[i].uuid == document.getElementById("editStationUidInput").value) {
-            favourites.stations[i].name = document.getElementById("editStationNameInput").value;
-            favourites.stations[i].favicon = document.getElementById("editStationFaviconInput").value;
-            favourites.stations[i].url = document.getElementById("editStationURLInput").value;
-            currentStation.name = document.getElementById("editStationNameInput").value;
-            currentStation.favicon = document.getElementById("editStationFaviconInput").value;
-            currentStation.url = document.getElementById("editStationURLInput").value;
-
-            fetch("/setfavs", {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(favourites)
-            }).then(response => {
-                renderFavourites();
-                radio.src = currentStation.url;
-                //radio.load();              
-                updateUI();
-            });
+    const stationUuid = document.getElementById("editStationUidInput").value;
+    const index = favourites.stations.findIndex(s => s.uuid === stationUuid);
+    
+    if (index !== -1) {
+        // Update station
+        const updatedValues = {
+            name: document.getElementById("editStationNameInput").value,
+            favicon: document.getElementById("editStationFaviconInput").value,
+            url: document.getElementById("editStationURLInput").value
+        };
+        
+        Object.assign(favourites.stations[index], updatedValues);
+        Object.assign(currentStation, updatedValues);
+        
+        fetch("/setfavs", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(favourites)
+        }).then(() => {
+            renderFavourites();
+            radio.src = currentStation.url;
+            updateUI();
             modal.hide();
-            break;
-        }
+        }).catch(error => {
+            newToast(`Error saving edited station: ${error.message}`);
+        });
     }
 }
 
+/**
+ * Show toast message
+ * @param {string} message - Message to display
+ */
 function newToast(message) {
-    document.getElementById("toastMessage").innerHTML = (message);
+    document.getElementById("toastMessage").innerHTML = message;
     toast.show();
 }
 
+/**
+ * Get AudioMotion mode
+ * @returns {number} AudioMotion mode
+ */
 function getAudioMotionMode() {
-    var mode = 12 - parseInt(window.innerWidth / 100)
-    if (mode <= 2) {
-        mode = 2;
-    }
-    if (mode >= 6) {
-        mode = 6;
-    }
-    return mode;
+    let mode = 12 - parseInt(window.innerWidth / 100);
+    return Math.max(2, Math.min(6, mode));
 }
 
+/**
+ * Handle window resize event
+ */
 function resizedWindowEvent() {
-    var mode = getAudioMotionMode();
-    if (mode != audioMotion.getOptions().mode) {
-        audioMotion.setOptions({ mode: mode });
-    };
-}
-
-radio.onvolumechange = function () {
-    localStorage.setItem("volume", document.getElementById('radio').volume);
-};
-
-radio.onpause = function () {
-    if (!radio.error) {
-        nowPlaying.trackStream(undefined);
-        if (document.getElementById("title_" + currentStation.uuid) != null) {
-            document.getElementById("title_" + currentStation.uuid).innerHTML = "Paused";
-            document.getElementById("favicon_" + currentStation.uuid).src = currentStation.favicon;
-            if ('mediaSession' in navigator) {
-                navigator.mediaSession.metadata = new MediaMetadata({
-                    title: currentStation.name,
-                    artwork: [{
-                        src: currentStation.favicon, type: 'image/png'
-                    }]
-                });
-            }
-            setStatusIcon("bi-play-circle");
-        }
-        document.title = currentStation.name;
-    }
-};
-
-radio.onerror = function () {
-    Array.from(document.getElementsByClassName("list-group-item")).forEach(element => {
-        if (element.classList.contains("active") && element.classList.contains("fav")) {
-            document.getElementById("title_" + currentStation.uuid).innerHTML = radio.error.message;
-            setStatusIcon("bi-x-circle");
-        }
-    });
-    newToast(radio.error.message);
-    setMenu();
-};
-
-radio.onplay = function () {
-    updateUI();
-}
-
-radio.onplaying = function () {
-    if (document.getElementById("status_" + currentStation.uuid) != null) {
-        setStatusIcon("bi-pause-circle");
+    const newMode = getAudioMotionMode();
+    if (newMode !== audioMotion.getOptions().mode) {
+        audioMotion.setOptions({ mode: newMode });
     }
 }
 
-radio.onloadstart = function () {
-    if (document.getElementById("status_" + currentStation.uuid) != null) {
-        setStatusIcon("spinner-border");
-    }
-}
-
-radio.onloadeddata = function () {
-    if (document.getElementById("status_" + currentStation.uuid) != null) {
-        setStatusIcon("bi-pause-circle");
-    }
-    playPromise = radio.play();
-}
-
-radio.onwaiting = function () {
-    if (document.getElementById("status_" + currentStation.uuid) != null) {
-        setStatusIcon("spinner-border");
-    }
-}
-
+/**
+ * Set status icon
+ * @param {string} icon - CSS class of the icon
+ */
 function setStatusIcon(icon) {
-    document.getElementById("status_" + currentStation.uuid).classList.remove("bi-play-circle", "bi-pause-circle", "spinner-border", "bi-x-circle");
-    document.getElementById("status_" + currentStation.uuid).classList.add(icon);
+    if (!currentStation.uuid) return;
+    
+    const statusElement = document.getElementById("status_" + currentStation.uuid);
+    if (!statusElement) return;
+    
+    statusElement.classList.remove("bi-play-circle", "bi-pause-circle", "spinner-border", "bi-x-circle");
+    statusElement.classList.add(icon);
 }
 
+/**
+ * Update UI
+ */
 function updateUI() {
-    var items = document.getElementsByClassName('list-group-item');
+    // Reset all list items and mark the active one
+    const items = document.getElementsByClassName('list-group-item');
+    
     for (let i = 0; i < items.length; i++) {
-        items[i].classList.remove('active');
-        if(items[i].classList.contains("fav")){
-            if(document.getElementById("favicon_" + items[i].id).classList.contains("cover")){
-                document.getElementById("favicon_" + items[i].id).classList.remove('cover');
-                document.getElementById("favicon_" + items[i].id).classList.add('station-icon');
-                document.getElementById("favicon_" + items[i].id).src = favourites.stations.find(station => station.uuid === items[i].id).favicon;
+        const item = items[i];
+        item.classList.remove('active');
+        
+        if (item.classList.contains("fav")) {
+            const faviconElement = document.getElementById("favicon_" + item.id);
+            
+            if (faviconElement?.classList.contains("cover")) {
+                faviconElement.classList.remove('cover');
+                faviconElement.classList.add('station-icon');
+                
+                const station = favourites.stations.find(s => s.uuid === item.id);
+                if (station) faviconElement.src = station.favicon;
             }
         }
-        if (document.getElementById("title_" + items[i].id) != null && items[i].id != currentStation.uuid) {
-            document.getElementById("title_" + items[i].id).innerHTML = "";
-            document.getElementById("status_" + items[i].id).classList.remove("bi-play-circle", "bi-pause-circle", "spinner-border", "bi-x-circle");
+        
+        // Reset title and status if not active
+        const titleElement = document.getElementById("title_" + item.id);
+        const statusElement = document.getElementById("status_" + item.id);
+        
+        if (titleElement && item.id !== currentStation.uuid) {
+            titleElement.innerHTML = "";
         }
-        if (items[i].id == currentStation.uuid) {
-            if(items[i].classList.contains("fav")){
-                document.getElementById("favicon_" + items[i].id).classList.remove('station-icon');
-                document.getElementById("favicon_" + items[i].id).classList.add('cover');
-            }        
-            items[i].classList.add('active');
-            if (document.getElementById("status_" + currentStation.uuid) != null && !radio.paused) {
+        
+        if (statusElement && item.id !== currentStation.uuid) {
+            statusElement.classList.remove("bi-play-circle", "bi-pause-circle", "spinner-border", "bi-x-circle");
+        }
+        
+        // Mark active station
+        if (item.id === currentStation.uuid) {
+            item.classList.add('active');
+            
+            if (item.classList.contains("fav")) {
+                const faviconElement = document.getElementById("favicon_" + item.id);
+                if (faviconElement) {
+                    faviconElement.classList.remove('station-icon');
+                    faviconElement.classList.add('cover');
+                }
+            }
+            
+            if (statusElement && !radio.paused) {
                 setStatusIcon("bi-pause-circle");
             }
         }
     }
+    
+    // Update dropdown status
+    updateDropdownStatus();
+    
+    // Update Media Session Metadata
+    updateMediaSessionMetadata();
+    
+    // Subscribe to track information if a station is playing
+    handleTrackInfo();
+    
+    // Update menu status
+    setMenu();
+}
 
-    document.getElementById("dropdown_station").classList.remove("bi-bookmark-check");
-    document.getElementById("dropdown_station").classList.add("bi-bookmark-x");
-    if (document.getElementById(currentStation.uuid) != null) {
-        if (document.getElementById(currentStation.uuid).classList.contains("fav")) {
-            document.getElementById("dropdown_station").classList.remove("bi-bookmark-x");
-            document.getElementById("dropdown_station").classList.add("bi-bookmark-check");
-        }
-    }
-    document.getElementById("dropdown_station").innerHTML = " " + currentStation.name;
+/**
+ * Update dropdown status
+ */
+function updateDropdownStatus() {
+    const dropdownStation = document.getElementById("dropdown_station");
+    dropdownStation.classList.remove("bi-bookmark-check", "bi-bookmark-x");
+    
+    const isBookmarked = document.getElementById(currentStation.uuid)?.classList.contains("fav");
+    dropdownStation.classList.add(isBookmarked ? "bi-bookmark-check" : "bi-bookmark-x");
+    dropdownStation.innerHTML = " " + currentStation.name;
+}
 
+/**
+ * Update Media Session Metadata
+ */
+function updateMediaSessionMetadata() {
     if ('mediaSession' in navigator) {
         navigator.mediaSession.metadata = new MediaMetadata({
             title: currentStation.name,
@@ -472,76 +526,90 @@ function updateUI() {
             }]
         });
     }
-    if (!radio.paused) {
-        if (document.getElementById(currentStation.uuid) != null) {
-            if (document.getElementById(currentStation.uuid).classList.contains("fav")) {
-                nowPlaying.trackStream(currentStation.url);
-                nowPlaying.subscribe((info) => {
-                    if (info.error) {
-                        console.log(`Error captured with reason: ${info.error}`)
-                        document.getElementById("title_" + currentStation.uuid).innerHTML = "";
-                    } else {
-                        document.getElementById("title_" + currentStation.uuid).innerHTML = info.title;
-                        if (info.title) {
-                            fetchCover(info.title);
-                        }
-                    }
-                    if ('mediaSession' in navigator) {
-                        navigator.mediaSession.metadata.artist = info.title;
-                    }
-                    if (info.title != "") {
-                        document.title = currentStation.name + " - " + info.title;
-                    } else {
-                        document.title = currentStation.name;
-                    }
-                })
-            }
-        }
-    } else {
-        if (document.getElementById("title_" + currentStation.uuid) != null) {
-            document.getElementById("title_" + currentStation.uuid).innerHTML = "Paused";
+}
+
+/**
+ * Handle track information
+ */
+function handleTrackInfo() {
+    const isActiveFav = document.getElementById(currentStation.uuid)?.classList.contains("fav");
+    
+    if (!radio.paused && isActiveFav) {
+        nowPlaying.trackStream(currentStation.url);
+        nowPlaying.subscribe(handleTrackUpdate);
+    } else if (radio.paused) {
+        const titleElement = document.getElementById("title_" + currentStation.uuid);
+        if (titleElement) {
+            titleElement.innerHTML = "Paused";
             setStatusIcon("bi-play-circle");
         }
     }
-
-    setMenu();
 }
 
-
-function setMenu() {
-    document.getElementById("menuEdit").classList.add("disabled");
-    document.getElementById("menuAdd").classList.add("disabled");
-    document.getElementById("menuRemove").classList.add("disabled");
-    document.getElementById("moveFavUp").classList.add("disabled");
-    document.getElementById("moveFavDown").classList.add("disabled");
-
-    var fav = false;
-    var active = false;
-    Array.from(document.getElementsByClassName("list-group-item")).forEach(element => {
-        if (element.classList.contains("active")) {
-            active = true;
-            if (element.classList.contains("fav")) {
-                fav = true;
-            }
+/**
+ * Handle track update
+ * @param {Object} info - Track information
+ */
+function handleTrackUpdate(info) {
+    if (info.error) {
+        console.log(`Error captured with reason: ${info.error}`);
+        document.getElementById("title_" + currentStation.uuid).innerHTML = "";
+    } else {
+        document.getElementById("title_" + currentStation.uuid).innerHTML = info.title;
+        if (info.title) {
+            fetchCover(info.title);
         }
+    }
+    
+    if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata.artist = info.title;
+    }
+    
+    document.title = info.title ? `${currentStation.name} - ${info.title}` : currentStation.name;
+}
+
+/**
+ * Set menu status
+ */
+function setMenu() {
+    const menuItems = [
+        "menuEdit", "menuAdd", "menuRemove", "moveFavUp", "moveFavDown"
+    ];
+    
+    // Disable all menu items
+    menuItems.forEach(id => {
+        document.getElementById(id).classList.add("disabled");
     });
-    if (active && fav) {
+    
+    const activeElement = document.querySelector(".list-group-item.active");
+    if (!activeElement) return;
+    
+    const isActiveFav = activeElement.classList.contains("fav");
+    
+    if (isActiveFav) {
+        // Favorite is active
         document.getElementById("menuEdit").classList.remove("disabled");
         document.getElementById("menuRemove").classList.remove("disabled");
         document.getElementById("moveFavUp").classList.remove("disabled");
         document.getElementById("moveFavDown").classList.remove("disabled");
-
-    }
-    if (active && !fav) {
+    } else {
+        // Non-favorite is active
         document.getElementById("menuAdd").classList.remove("disabled");
     }
 }
 
+/**
+ * Close search results
+ */
 function closeSearchResults() {
     document.getElementById('searchResults').remove();
     setMenu();
 }
 
+/**
+ * Fetch cover
+ * @param {string} title - Title
+ */
 async function fetchCover(title) {
     const escapedTitle = encodeURIComponent(title);
     const url = `/cover?title=${escapedTitle}`;
@@ -549,36 +617,84 @@ async function fetchCover(title) {
     try {
         const response = await fetch(url);
         const data = await response.json();
-
-        if (data.coverUrl) {
-            handleCoverResponse(data);
-        } else {
-            console.warn("Kein Cover gefunden für:", data.searchTerm);
-            handleCoverResponse({ searchTerm: data.searchTerm, coverUrl: null });
-        }
+        handleCoverResponse(data);
     } catch (error) {
-        console.error("Fehler beim Abrufen des Covers:", error);
+        console.error("Error fetching cover:", error);
     }
 }
 
+/**
+ * Handle cover response
+ * @param {Object} data - Cover data
+ */
 function handleCoverResponse(data) {
-    if (data.coverUrl) {
-        document.getElementById("favicon_" + currentStation.uuid).src=data.coverUrl;
-        if ('mediaSession' in navigator) {
-            navigator.mediaSession.metadata = new MediaMetadata({
-                artwork: [{
-                    src: data.coverUrl, type: 'image/png'
-                }]
-            });
-        }
-    } else {
-        document.getElementById("favicon_" + currentStation.uuid).src=currentStation.favicon;
-        if ('mediaSession' in navigator) {
-            navigator.mediaSession.metadata = new MediaMetadata({
-                artwork: [{
-                    src: currentStation.favicon, type: 'image/png'
-                }]
-            });
-        }
+    const coverUrl = data.coverUrl || currentStation.favicon;
+    document.getElementById("favicon_" + currentStation.uuid).src = coverUrl;
+    
+    if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+            artwork: [{
+                src: coverUrl, type: 'image/png'
+            }]
+        });
     }
 }
+
+// Event listeners
+radio.onvolumechange = () => {
+    localStorage.setItem("volume", radio.volume);
+};
+
+radio.onpause = () => {
+    if (!radio.error) {
+        nowPlaying.trackStream(undefined);
+        
+        const titleElement = document.getElementById("title_" + currentStation.uuid);
+        const faviconElement = document.getElementById("favicon_" + currentStation.uuid);
+        
+        if (titleElement) {
+            titleElement.innerHTML = "Paused";
+            if (faviconElement) faviconElement.src = currentStation.favicon;
+            
+            updateMediaSessionMetadata();
+            setStatusIcon("bi-play-circle");
+        }
+        
+        document.title = currentStation.name;
+    }
+};
+
+radio.onerror = () => {
+    if (currentStation.uuid) {
+        const titleElement = document.getElementById("title_" + currentStation.uuid);
+        if (titleElement) titleElement.innerHTML = radio.error.message;
+        setStatusIcon("bi-x-circle");
+    }
+    
+    newToast(radio.error.message);
+    setMenu();
+};
+
+radio.onplay = () => {
+    updateUI();
+};
+
+radio.onplaying = () => {
+    setStatusIcon("bi-pause-circle");
+};
+
+radio.onloadstart = () => {
+    setStatusIcon("spinner-border");
+};
+
+radio.onloadeddata = () => {
+    setStatusIcon("bi-pause-circle");
+    playPromise = radio.play();
+};
+
+radio.onwaiting = () => {
+    setStatusIcon("spinner-border");
+};
+
+// Monitor window resize
+window.addEventListener('resize', resizedWindowEvent);
