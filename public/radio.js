@@ -6,6 +6,8 @@ const radio = document.getElementById("radio");
 const currentStation = { url: null, name: null, favicon: null, uuid: null };
 let favourites;
 let playPromise;
+let chromeCastPlayerState=null;
+let chromeCastIsConnected=false;
 
 // Initialize audio visualizer
 const audioMotion = initAudioMotion();
@@ -67,17 +69,53 @@ function setupMediaSessionHandlers() {
     if (!('mediaSession' in navigator)) return;
 
     navigator.mediaSession.setActionHandler('play', () => {
-        radio.load();
-    });
-
-    navigator.mediaSession.setActionHandler('previoustrack', () => {
-        navigateStation(-1);
-    });
-
-    navigator.mediaSession.setActionHandler('nexttrack', () => {
-        navigateStation(1);
+            radio.load();
     });
 }
+
+window['__onGCastApiAvailable'] = function(isAvailable) {
+    if (isAvailable) {
+      initializeCastApi();
+    }
+};
+
+initializeCastApi = function() {
+    cast.framework.CastContext.getInstance().setOptions({
+      receiverApplicationId: "835FA0CB",
+      autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
+    });
+    player = new cast.framework.RemotePlayer();
+    playerController = new cast.framework.RemotePlayerController(player);
+    playerController.addEventListener(
+        cast.framework.RemotePlayerEventType.IS_CONNECTED_CHANGED, function() {
+            console.log("Chromecast Connection State: " + player.isConnected);
+
+            if(player.isConnected){
+            chromeCastIsConnected=true;
+            radio.pause();
+            radio.onpause();
+            }else{
+            chromeCastIsConnected=false;
+            }
+            Object.assign(currentStation, { name: null, url: null, favicon: null, uuid: null });
+            updateUI()
+    });
+    playerController.addEventListener(
+        cast.framework.RemotePlayerEventType.PLAYER_STATE_CHANGED, function() {
+            console.log("Chromecast Player State: " + player.playerState);
+            chromeCastPlayerState = player.playerState;
+            if (chromeCastPlayerState === "PLAYING") {
+                setStatusIcon("bi-pause-circle");
+                updateUI();
+            } else if (chromeCastPlayerState === "PAUSED") {
+                setStatusIcon("bi-play-circle");
+                radio.onpause();
+            } else if (chromeCastPlayerState === "BUFFERING") {
+                setStatusIcon("spinner-border");
+            }
+    });
+
+};
 
 /**
  * Switches to an adjacent station
@@ -150,18 +188,64 @@ function clickStation(url, artwork, station, stationuuid) {
         // New station was selected
         Object.assign(currentStation, { name: station, url: url, favicon: artwork, uuid: stationuuid });
         document.title = station;
-        radio.src = url;
-        playPromise = radio.play();
+        if(cast.framework.CastContext.getInstance().getCurrentSession()){
+            var castSession = cast.framework.CastContext.getInstance().getCurrentSession();
+            var mediaInfo = new chrome.cast.media.MediaInfo(currentStation.url, "audio/mp3");
+            mediaInfo.streamType = chrome.cast.media.StreamType.BUFFERED;
+            mediaInfo.metadata = new chrome.cast.media.MusicTrackMediaMetadata();
+            mediaInfo.metadata.title = currentStation.name;
+            mediaInfo.metadata.images = [{url: currentStation.favicon}];            
+            var request = new chrome.cast.media.LoadRequest(mediaInfo);
+            castSession.loadMedia(request).then(
+              function() { 
+                handleTrackInfo(); 
+              },
+              function(errorCode) { console.log('Error code: ' + errorCode); });
+        }else{
+            radio.src = url;
+            playPromise = radio.play();
+        }
+        
     } else {
         // Same station was selected - toggle play/pause
-        if (radio.paused) {
-            radio.load();
-        } else {
-            // https://developer.chrome.com/blog/play-request-was-interrupted?hl=de
-            if (playPromise !== undefined) {
-                playPromise.then(() => {
-                    radio.pause();
-                }).catch(() => {});
+        if(!chromeCastIsConnected){
+            if (radio.paused) {
+                radio.load();
+            } else {
+                // https://developer.chrome.com/blog/play-request-was-interrupted?hl=de
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        radio.pause();
+                    }).catch(() => {});
+                }
+            }
+        }else{
+            let session = cast.framework.CastContext.getInstance().getCurrentSession();
+            if (!session) {
+                console.error("Keine aktive Chromecast-Sitzung.");
+                return;
+            }
+
+            let media = session.getMediaSession();
+            if (!media) {
+                console.error("Kein aktives Medien-Element auf Chromecast.");
+                return;
+            }
+            let command;
+            if(chromeCastPlayerState==="PAUSED"){
+                command = new chrome.cast.media.PlayRequest();
+                media.play(command, 
+                    () => console.log("Success on play"),
+                    (error) => console.error("Error:", error)
+                );
+            } else if(chromeCastPlayerState==="PLAYING"){
+                command = new chrome.cast.media.PauseRequest();
+                if (command){
+                    media.pause(command, 
+                        () => console.log("Success on pause"),
+                        (error) => console.error("Error:", error)
+                    );
+                }
             }
         }
     }
@@ -534,7 +618,7 @@ function updateMediaSessionMetadata() {
 function handleTrackInfo() {
     const isActiveFav = document.getElementById(currentStation.uuid)?.classList.contains("fav");
     
-    if (!radio.paused && isActiveFav) {
+    if ((!radio.paused && isActiveFav) || (chromeCastPlayerState === "PLAYING" && isActiveFav) ) {
         nowPlaying.trackStream(currentStation.url);
         nowPlaying.subscribe(handleTrackUpdate);
     } else if (radio.paused) {
@@ -561,7 +645,7 @@ function handleTrackUpdate(info) {
         }
     }
     
-    if ('mediaSession' in navigator) {
+    if ('mediaSession' in navigator && !chromeCastIsConnected) {
         navigator.mediaSession.metadata.artist = info.title;
     }
     
