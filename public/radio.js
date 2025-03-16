@@ -117,6 +117,21 @@ initializeCastApi = function() {
 
 };
 
+function chromeCastPlay(){
+    var castSession = cast.framework.CastContext.getInstance().getCurrentSession();
+    var mediaInfo = new chrome.cast.media.MediaInfo(currentStation.url, "audio/mp3");
+    mediaInfo.streamType = chrome.cast.media.StreamType.BUFFERED;
+    mediaInfo.metadata = new chrome.cast.media.MusicTrackMediaMetadata();
+    mediaInfo.metadata.title = currentStation.name;
+    mediaInfo.metadata.images = [{url: currentStation.favicon}];            
+    var request = new chrome.cast.media.LoadRequest(mediaInfo);
+    castSession.loadMedia(request).then(
+      function() { 
+        handleTrackInfo(); 
+      },
+      function(errorCode) { console.log('Error code: ' + errorCode); });
+}
+
 /**
  * Switches to an adjacent station
  * @param {number} direction - Direction (-1 for previous, 1 for next)
@@ -189,18 +204,7 @@ function clickStation(url, artwork, station, stationuuid) {
         Object.assign(currentStation, { name: station, url: url, favicon: artwork, uuid: stationuuid });
         document.title = station;
         if(cast.framework.CastContext.getInstance().getCurrentSession()){
-            var castSession = cast.framework.CastContext.getInstance().getCurrentSession();
-            var mediaInfo = new chrome.cast.media.MediaInfo(currentStation.url, "audio/mp3");
-            mediaInfo.streamType = chrome.cast.media.StreamType.BUFFERED;
-            mediaInfo.metadata = new chrome.cast.media.MusicTrackMediaMetadata();
-            mediaInfo.metadata.title = currentStation.name;
-            mediaInfo.metadata.images = [{url: currentStation.favicon}];            
-            var request = new chrome.cast.media.LoadRequest(mediaInfo);
-            castSession.loadMedia(request).then(
-              function() { 
-                handleTrackInfo(); 
-              },
-              function(errorCode) { console.log('Error code: ' + errorCode); });
+            chromeCastPlay();
         }else{
             radio.src = url;
             playPromise = radio.play();
@@ -469,7 +473,13 @@ function saveEditedFavourite() {
             body: JSON.stringify(favourites)
         }).then(() => {
             renderFavourites();
-            radio.src = currentStation.url;
+            if(radio.src != updatedValues.url){
+                if(cast.framework.CastContext.getInstance().getCurrentSession()){
+                    chromeCastPlay();
+                }else{
+                    radio.src = currentStation.url;
+                }
+            }
             updateUI();
             modal.hide();
         }).catch(error => {
