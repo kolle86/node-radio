@@ -75,21 +75,22 @@ function setupMediaSessionHandlers() {
 
 window['__onGCastApiAvailable'] = function(isAvailable) {
     if (isAvailable) {
-      initializeCastApi();
+        setTimeout(() => {
+            initializeCastApi();
+        }, 1000)
     }
 };
 
 initializeCastApi = function() {
     cast.framework.CastContext.getInstance().setOptions({
       receiverApplicationId: "835FA0CB",
+      //receiverApplicationId: chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID,
       autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
     });
     player = new cast.framework.RemotePlayer();
     playerController = new cast.framework.RemotePlayerController(player);
     playerController.addEventListener(
         cast.framework.RemotePlayerEventType.IS_CONNECTED_CHANGED, function() {
-            console.log("Chromecast Connection State: " + player.isConnected);
-
             if(player.isConnected){
             chromeCastIsConnected=true;
             radio.pause();
@@ -102,7 +103,6 @@ initializeCastApi = function() {
     });
     playerController.addEventListener(
         cast.framework.RemotePlayerEventType.PLAYER_STATE_CHANGED, function() {
-            console.log("Chromecast Player State: " + player.playerState);
             chromeCastPlayerState = player.playerState;
             if (chromeCastPlayerState === "PLAYING") {
                 setStatusIcon("bi-pause-circle");
@@ -235,14 +235,14 @@ function clickStation(url, artwork, station, stationuuid) {
             if(chromeCastPlayerState==="PAUSED"){
                 command = new chrome.cast.media.PlayRequest();
                 media.play(command, 
-                    () => console.log("Success on play"),
+                    () => console.log("Chromecast play"),
                     (error) => console.error("Error:", error)
                 );
             } else if(chromeCastPlayerState==="PLAYING"){
                 command = new chrome.cast.media.PauseRequest();
                 if (command){
                     media.pause(command, 
-                        () => console.log("Success on pause"),
+                        () => console.log("Chromecast pause"),
                         (error) => console.error("Error:", error)
                     );
                 }
