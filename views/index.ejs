@@ -110,7 +110,9 @@
                                     <% } %>
                                     ]
                                 </div>
-                                <img class="rounded station-icon" src="<%= station.favicon %>">
+                                <% if (station.favicon) { %>
+                                    <img class="rounded station-icon" src="<%= station.favicon %>">
+                                <% } %>
                             </a>
 
                         <% }); %>
