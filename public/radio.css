@@ -28,6 +28,7 @@ body{
 a img{
     object-fit: cover;
     transition: all 0.3s;
+    margin-left: 8px;
 }
     
 .station-icon{        

@@ -327,7 +327,7 @@ function renderFavourites() {
 
     // Add favorites
     favourites.stations.forEach(station => {
-        const newFav = document.createElement("a");
+        const newFav = document.createElement("a");        
         newFav.innerHTML = `
             <div class="ms-2 me-auto">
                 <div class="fw-bold">${station.name}</div>
@@ -336,7 +336,7 @@ function renderFavourites() {
                     <span id="title_${station.uuid}"></span>
                 </div>
             </div>
-            <img id="favicon_${station.uuid}" class="rounded border station-icon" src="${station.favicon}">
+            <img id="favicon_${station.uuid}" class="rounded border station-icon" src="${station.favicon}" onerror="this.src='radio.svg'">
         `;
         newFav.href = "javascript:void(0);";
         newFav.id = station.uuid;
