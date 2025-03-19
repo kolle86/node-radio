@@ -52,4 +52,6 @@ a img{
     height: 36px;
     margin-right: 16px;
     cursor: pointer;
+    --connected-color: var(--bs-primary);
+    --disconnected-color: var(--bs-tertiary-color);
 }
