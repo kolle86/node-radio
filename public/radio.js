@@ -71,6 +71,14 @@ function setupMediaSessionHandlers() {
     navigator.mediaSession.setActionHandler('play', () => {
             radio.load();
     });
+
+    navigator.mediaSession.setActionHandler('previoustrack', () => {
+        navigateStation(-1);
+    });
+
+    navigator.mediaSession.setActionHandler('nexttrack', () => {
+        navigateStation(1);
+    });
 }
 
 window['__onGCastApiAvailable'] = function(isAvailable) {
