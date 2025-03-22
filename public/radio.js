@@ -8,6 +8,7 @@ let favourites;
 let playPromise;
 let chromeCastPlayerState=null;
 let chromeCastIsConnected=false;
+let skipFirstTrackUpdate = true;
 
 // Initialize audio visualizer
 const audioMotion = initAudioMotion();
@@ -637,6 +638,7 @@ function handleTrackInfo() {
     const isActiveFav = document.getElementById(currentStation.uuid)?.classList.contains("fav");
     
     if ((!radio.paused && isActiveFav) || (chromeCastPlayerState === "PLAYING" && isActiveFav) ) {
+        skipFirstTrackUpdate = true;
         nowPlaying.trackStream(currentStation.url);
         nowPlaying.subscribe(handleTrackUpdate);
     } else if (radio.paused) {
@@ -657,9 +659,13 @@ function handleTrackUpdate(info) {
         console.log(`Error captured with reason: ${info.error}`);
         document.getElementById("title_" + currentStation.uuid).innerHTML = "";
     } else {
-        document.getElementById("title_" + currentStation.uuid).innerHTML = info.title;
-        if (info.title) {
-            fetchCover(info.title);
+        if(!skipFirstTrackUpdate){
+            document.getElementById("title_" + currentStation.uuid).innerHTML = info.title;
+            if (info.title) {
+                fetchCover(info.title);
+            }           
+        }else{
+            skipFirstTrackUpdate = false;
         }
     }
     
