@@ -665,6 +665,7 @@ function handleTrackUpdate(info) {
                 fetchCover(info.title);
             }           
         }else{
+            document.getElementById("title_" + currentStation.uuid).innerHTML = '';
             skipFirstTrackUpdate = false;
         }
     }
