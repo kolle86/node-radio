@@ -438,6 +438,9 @@ function changeVolume(value) {
     }
     
     replaceVolumeIcon(iconClass);
+
+    let volumeBar = document.getElementById("volumeProgress");
+    volumeBar.style.width = value + "%";
 }
 
 /**
@@ -463,8 +466,10 @@ function mute() {
     
     if (radio.muted) {
         replaceVolumeIcon('bi-volume-mute');
+        document.getElementById("volumeProgress").classList.add("volume-disabled");
     } else {
         changeVolume(parseInt(radio.volume * 100));
+        document.getElementById("volumeProgress").classList.remove("volume-disabled");
     }
 }
 
