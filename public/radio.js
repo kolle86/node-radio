@@ -3,6 +3,8 @@ const modal = new bootstrap.Modal(document.getElementById('editStationModal'), {
 const liveToast = document.getElementById('liveToast');
 const toast = bootstrap.Toast.getOrCreateInstance(liveToast);
 const radio = document.getElementById("radio");
+const searchButton = document.getElementById("searchButton");
+
 const currentStation = { url: null, name: null, favicon: null, uuid: null };
 let favourites;
 let playPromise;
@@ -271,10 +273,9 @@ function clickStation(url, artwork, station, stationuuid) {
 function favouritesAction(action) {
     if (!currentStation.url) return;
     
-    const stationElement = document.getElementById(currentStation.uuid);
-    if (!stationElement?.classList.contains("active")) return;
-    
     if (action === "remove") {
+        let stationElement = document.getElementById(currentStation.uuid);
+        if (!stationElement?.classList.contains("active")) return;
         if (!stationElement.classList.contains("fav")) return;
         
         if (confirm(`Remove ${currentStation.name} from favourites?`)) {
@@ -286,6 +287,11 @@ function favouritesAction(action) {
             }
         }
     } else if (action === 'add') {
+        if(document.getElementById("emptyMessage")){
+            document.getElementById("emptyMessage").remove();
+        }
+        let stationElement = document.getElementById(currentStation.uuid + "_search");
+        if (!stationElement?.classList.contains("active")) return;
         if (stationElement.classList.contains("fav")) return;
         
         favourites.stations.push({
@@ -296,6 +302,7 @@ function favouritesAction(action) {
         });
         saveFavouritesAndUpdate();
     }
+    setMenu();
 }
 
 /**
@@ -330,6 +337,7 @@ function renderFavourites() {
         const emptyMessage = document.createElement("li");
         emptyMessage.innerHTML = 'Favourites are empty. <br>Select the upper right dropdown and search for stations. <br>Select a station from the results and add it to the favourites via the dropdown.';
         emptyMessage.setAttribute("class", "list-group-item");
+        emptyMessage.id="emptyMessage"
         favouritesContainer.appendChild(emptyMessage);
         return;
     }
@@ -575,7 +583,7 @@ function updateUI() {
         }
         
         // Mark active station
-        if (item.id === currentStation.uuid) {
+        if (item.id === currentStation.uuid || item.id === currentStation.uuid + "_search") {
             item.classList.add('active');
             
             if (item.classList.contains("fav")) {
@@ -690,29 +698,24 @@ function setMenu() {
         document.getElementById(id).classList.add("disabled");
     });
     
-    const activeElement = document.querySelector(".list-group-item.active");
-    if (!activeElement) return;
+    const activeElements = document.querySelectorAll(".list-group-item.active");
+    if (!activeElements) return;
+    activeElements.forEach(activeElement =>{
+        const isActiveFav = activeElement.classList.contains("fav");
+        
+        if (isActiveFav) {
+            // Favorite is active
+            document.getElementById("menuEdit").classList.remove("disabled");
+            document.getElementById("menuRemove").classList.remove("disabled");
+            document.getElementById("moveFavUp").classList.remove("disabled");
+            document.getElementById("moveFavDown").classList.remove("disabled");
+            document.getElementById("menuAdd").classList.add("disabled");
+        } else {
+            // Non-favorite is active
+            document.getElementById("menuAdd").classList.remove("disabled");
+        }
+    });
     
-    const isActiveFav = activeElement.classList.contains("fav");
-    
-    if (isActiveFav) {
-        // Favorite is active
-        document.getElementById("menuEdit").classList.remove("disabled");
-        document.getElementById("menuRemove").classList.remove("disabled");
-        document.getElementById("moveFavUp").classList.remove("disabled");
-        document.getElementById("moveFavDown").classList.remove("disabled");
-    } else {
-        // Non-favorite is active
-        document.getElementById("menuAdd").classList.remove("disabled");
-    }
-}
-
-/**
- * Close search results
- */
-function closeSearchResults() {
-    document.getElementById('searchResults').remove();
-    setMenu();
 }
 
 /**
@@ -748,6 +751,104 @@ function handleCoverResponse(data) {
         });
     }
 }
+
+/**
+ * Searches for radio stations using the /search route
+ * @param {string} searchTerm - The search term
+ */
+async function searchStations(searchTerm) {
+    const url = `/search?searchterm=${encodeURIComponent(searchTerm)}`;
+    if(searchTerm.length >= 3){
+        searchButton.innerHTML = "<span class='spinner-border'></span>";
+        searchButton.classList.remove("bi-search");
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`Response status: ${response.status}`);
+            }
+            const data = await response.json();
+            appendSearchResults(data);
+        } catch (error) {
+            console.error("Error searching stations:", error);
+            newToast(error.message);
+        }
+    }else{
+        newToast("Please enter at least 3 characters.");
+    }
+}
+
+function appendSearchResults(stations){
+    searchButton.innerHTML = "";
+    searchButton.classList.add("bi-search");
+    const container = document.getElementById("searchResults");
+    container.classList.add("mt-3");
+    // Alte List-Group entfernen, falls vorhanden
+    container.innerHTML = "";
+
+    // Neue List-Group erstellen
+    const listGroup = document.createElement("ol");
+    listGroup.id = "stations";
+    listGroup.className = "list-group";
+
+    stations.forEach(station => {
+        const listItem = document.createElement("a");
+        listItem.id = station.stationuuid + "_search";
+        listItem.href = "javascript:void(0);";
+        listItem.className = "list-group-item list-group-item-action d-flex justify-content-between align-items-start";
+        listItem.onclick = function () {
+            clickStation(station.url_resolved, station.favicon, station.name, station.stationuuid);
+        };
+
+        const textContainer = document.createElement("div");
+        textContainer.className = "ms-2 me-auto";
+
+        const stationName = document.createElement("div");
+        stationName.className = "fw-bold";
+        stationName.textContent = station.name;
+
+        textContainer.appendChild(stationName);
+
+        if (station.country) {
+            textContainer.appendChild(document.createTextNode(station.country + " "));
+        }
+
+        const details = [];
+        if (station.bitrate) details.push(`${station.bitrate} kbps`);
+        if (station.codec) details.push(station.codec);
+
+        if (details.length > 0) {
+            textContainer.appendChild(document.createTextNode(`[${details.join(" ")}]`));
+        }
+
+        listItem.appendChild(textContainer);
+
+        if (station.favicon) {
+            const img = document.createElement("img");
+            img.className = "rounded station-icon";
+            img.src = station.favicon;
+            listItem.appendChild(img);
+        }
+
+        listGroup.appendChild(listItem);
+    });
+
+    // Neue List-Group in den Container einfügen
+    container.appendChild(listGroup);
+}
+
+function resetSearch(){
+     document.getElementById("searchResults").innerHTML = "";
+     document.getElementById("searchResults").classList.remove("mt-3");
+     document.getElementById("searchField").value = "";
+     setMenu();
+}
+
+function submitSearch(event) {
+    if (event.key === 'Enter') {
+      event.preventDefault(); 
+      searchStations(document.getElementById('searchField').value); 
+    }
+  }
 
 // Event listeners
 radio.onvolumechange = () => {

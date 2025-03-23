@@ -21,10 +21,6 @@ body{
     padding: 1rem;
 }
 
-#search_form{
-    width: 250px;
-}
-
 a img{
     object-fit: cover;
     transition: all 0.3s;
@@ -54,4 +50,8 @@ a img{
     cursor: pointer;
     --connected-color: var(--bs-primary);
     --disconnected-color: var(--bs-tertiary-color);
+}
+
+.nav-link.disabled{
+    color: var(--bs-secondary-color) !important;
 }

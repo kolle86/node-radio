@@ -1,66 +1,105 @@
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
 <%- include('partials/head.ejs'); -%>
-<body onresize="resizedWindowEvent()">
-    <audio class="my-auto" id="radio" crossorigin="anonymous"></audio>
-    
-    <header class="sticky-top bg-body shadow">
-        <div class="container p-3">
-            <div class="d-flex h-auto" >                           
 
-                <div class="my-auto d-flex pr-3">
-                    <span id="volume_icon" onclick="mute()" class="text-body-tertiary clickable bi-volume-up"></span>
-                </div>
-                <div class="my-auto d-flex px-3"><input oninput="changeVolume(this.value)" type="range" class="form-range" id="volumeRange"></div>
+    <body onresize="resizedWindowEvent()">
+        <audio class="my-auto" id="radio" crossorigin="anonymous"></audio>
 
-                <div id="visualizer_div" class="my-auto d-flex w-100 justify-content-center">
-                    <div id="visualizer" class="w-100"></div>
-                </div>
+        <header class="sticky-top bg-body shadow">
+            <div class="container p-3">
+                <div class="d-flex h-auto">
 
-                <div class="dropdown text-end my-auto">
-                    <a href="#" class="link-body-emphasis text-decoration-none text-body-tertiary bi bi-three-dots-vertical" data-bs-toggle="dropdown" aria-expanded="false">
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end" >
-                        <li><h6 id="dropdown_station" class="dropdown-item disabled text-white bi">No station selected</h6></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a id="menuEdit" onclick="toggleEditModal()" class="disabled dropdown-item bi bi-pencil-square" href="javascript:void(0);"> Edit</a></li>
-                        <li><a id="menuAdd" onclick="favouritesAction('add')" class="disabled dropdown-item bi bi-bookmark-plus " href="javascript:void(0);"> Add</a></li>
-                        <li><a id="menuRemove" onclick="favouritesAction('remove')" class="disabled dropdown-item bi bi-bookmark-dash " href="javascript:void(0);"> Remove</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                        <form id="search_form" class="d-flex mx-2" role="search" method="POST" action="/">
-                            <div class="input-group">
-                                <input id="searchField" class="form-control" type="search" name="searchterm" placeholder="Search station" aria-label="Search">
-                                <button class="btn btn-secondary bi bi-search" type="submit"></button>
-                              </div>
-                        </form>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li>  
-                            <span class="dropdown-item no-close" >
-                                <input checked type="checkbox" class="form-check-input" id="visualizerCheck" onchange="toggleVisualizer();">
-                                <label class="form-check-label" for="visualizerCheck">Spectrum visualizer</label>
-                            </span>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="bi bi-box-arrow-left dropdown-item" href="/logout"> Logout</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><h5 class="dropdown-header">
-                            v<%= version.appVersion %>
-                            <% if (!version.isUpToDate ){ %>
-                                <span class="text-warning">
-                                    (update available)
-                                </span>
-                            <%}%>
-                        </h5>
-                        </li>
-                        <li><a class="bi bi-github dropdown-item" target="_blank" href="https://github.com/kolle86/node-radio"> NodeRadio Repo</a></li>
-                    </ul>
+                    <div class="my-auto d-flex pr-3">
+                        <span id="volume_icon" onclick="mute()"
+                            class="text-body-tertiary clickable bi-volume-up"></span>
+                    </div>
+                    <div class="my-auto d-flex px-3"><input oninput="changeVolume(this.value)" type="range"
+                            class="form-range" id="volumeRange"></div>
+
+                    <div id="visualizer_div" class="my-auto d-flex w-100 justify-content-center">
+                        <div id="visualizer" class="w-100"></div>
+                    </div>
+
+                    <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas"
+                        data-bs-target="#offcanvasRight" aria-controls="offcanvasRight" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <div class="offcanvas offcanvas-end" data-bs-scroll="true" tabindex="-1" id="offcanvasRight"
+                        aria-labelledby="offcanvasNavbarDarkLabel">
+                        <div class="offcanvas-header">
+                            <h5 id="dropdown_station" class="offcanvas-title disabled text-white bi">No station selected
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"
+                                aria-label="Close"></button>
+                        </div>
+                        <div class="offcanvas-body">
+                            <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+                                <li class="nav-item">
+                                    <a id="menuEdit" onclick="toggleEditModal()"
+                                        class="disabled nav-link bi bi-pencil-square" href="javascript:void(0);">
+                                        Edit</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a id="menuAdd" onclick="favouritesAction('add')"
+                                        class="disabled nav-link bi bi-bookmark-plus " href="javascript:void(0);">
+                                        Add</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a id="menuRemove" onclick="favouritesAction('remove')"
+                                        class="disabled nav-link bi bi-bookmark-dash " href="javascript:void(0);">
+                                        Remove</a>
+                                </li>
+                                <hr>
+                                <li class="nav-item">
+                                    <form class="d-flex nav-link" role="search">
+                                        <div id="" class="input-group">
+                                            <input id="searchField" class="form-control"
+                                                onkeypress="submitSearch(event)" type="search" name="searchterm"
+                                                placeholder="Search..." aria-label="Search">
+                                            <button class="btn btn-secondary bi bi-search" id="searchButton"
+                                                type="button"
+                                                onclick="searchStations(document.getElementById('searchField').value)"></button>
+                                            <button class="btn btn-secondary bi bi-x-lg" type="button"
+                                                onclick="resetSearch()"></button>
+                                        </div>
+                                    </form>
+                                </li>
+                                <li class="nav-item" id="searchResults"> </li>
+                                <hr>
+                                <li class="nav-item">
+                                    <form class="nav-link">
+                                        <input checked type="checkbox" class="form-check-input" id="visualizerCheck"
+                                            onchange="toggleVisualizer();">
+                                        <label class="form-check-label" for="visualizerCheck">Spectrum
+                                            visualizer</label>
+                                        </span>
+                                </li>
+                                <hr>
+                                <li class="nav-item"><a class="bi bi-box-arrow-left nav-link" href="/logout"> Logout</a>
+                                </li>
+                                <hr>
+                                <li class="nav-item">
+
+                                    <span class="text-muted">v<%= version.appVersion %></span>
+                                    <% if (!version.isUpToDate ){ %>
+                                        <span class="text-warning">
+                                            (update available)
+                                        </span>
+                                        <%}%>
+
+                                </li>
+                                <li class="nav-item">
+                                    <a class="bi bi-github nav-link" target="_blank"
+                                        href="https://github.com/kolle86/node-radio"> NodeRadio Repo</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
-              </div>
-        </div>
-    </header>
-    
+            </div>
+        </header>
+
         <div class="container mt-3 mb-3">
             <div class="row justify-content-md-center">
                 <div class="col-lg-6 mb-3">
@@ -71,105 +110,69 @@
                         </div>
                         <div class="col-7 text-end my-auto mb-2">
                             <google-cast-launcher id="castLauncher"></google-cast-launcher>
-                            <button id="moveFavUp" onclick="moveFav('up')" type="button" class="disabled btn btn-outline-secondary bi bi-chevron-up"></button>
-                            <button id="moveFavDown" onclick="moveFav('down')" type="button" class="disabled btn btn-outline-secondary bi bi-chevron-down"></button>                          
+                            <button id="moveFavUp" onclick="moveFav('up')" type="button"
+                                class="disabled btn btn-outline-secondary bi bi-chevron-up"></button>
+                            <button id="moveFavDown" onclick="moveFav('down')" type="button"
+                                class="disabled btn btn-outline-secondary bi bi-chevron-down"></button>
                         </div>
 
-                      </div>
+                    </div>
                     <ol id="favourites" class="list-group">
 
                     </ol>
                 </div>
-
-                <% if (data !=  null) { %>
-                    <div class="col-lg-6" id="searchResults">
-                        <div class="row">
-                            <div class="col my-auto">
-                                <h3 class="bi bi-search-heart text-body-tertiary"> Search results</h3>
-                            </div>
-                            <div class="col text-end my-auto mb-2">
-                                <button onclick="closeSearchResults()" type="button" class="btn btn-outline-secondary bi bi-x-lg"></button>
-                            </div>
-
-                          </div>
-
-                        <ol id="stations" class="list-group">
-
-                        <% data.forEach(function(station){ %>
-                            <a id="<%= station.stationuuid %>" href="javascript:void(0);" class="list-group-item list-group-item-action d-flex justify-content-between align-items-start" onclick="clickStation('<%= station.url_resolved %>','<%= station.favicon %>','<%= station.name %>','<%= station.stationuuid %>')">
-                                <div class="ms-2 me-auto">
-                                    <div class="fw-bold"><%= station.name %></div>
-                                    <% if (station.country) { %>
-                                        <%=station.country %>
-                                    <% } %>
-                                    [<% if (station.bitrate) { %>
-                                        <%=station.bitrate %> kbps
-                                    <% } %>
-                                    <% if (station.codec) { %>
-                                        <%=station.codec%> 
-                                    <% } %>
-                                    ]
-                                </div>
-                                <% if (station.favicon) { %>
-                                    <img class="rounded station-icon" src="<%= station.favicon %>">
-                                <% } %>
-                            </a>
-
-                        <% }); %>
-                        
-                        </ol>
-                    </div> 
-                    <!--
-                    <script>window.onload = function(){location.href= "#searchResults"};</script>
-                    -->
-                <% } %>  
             </div>
         </div>
-        <div class="modal fade" id="editStationModal" tabindex="-1" aria-labelledby="editStationModalLabel" aria-hidden="true">
+        <div class="modal fade" id="editStationModal" tabindex="-1" aria-labelledby="editStationModalLabel"
+            aria-hidden="true">
             <div class="modal-dialog">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h1 class="modal-title fs-5" id="editStationModalLabel">Edit favourite</h1>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="editStationModalLabel">Edit favourite</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form>
+                            <div class="mb-3">
+                                <label for="editStationNameInput" class="form-label">Name</label>
+                                <input type="text" class="form-control" id="editStationNameInput">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editStationFaviconInput" class="form-label">Favicon</label>
+                                <input type="text" class="form-control" id="editStationFaviconInput">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editStationURLInput" class="form-label">URL</label>
+                                <input type="text" class="form-control" id="editStationURLInput">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editStationUidInput" class="form-label">UID</label>
+                                <input type="text" disabled class="form-control" id="editStationUidInput">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" onclick="saveEditedFavourite()" class="btn btn-primary">Save
+                            changes</button>
+                    </div>
                 </div>
-                <div class="modal-body">
-                    <form>
-                        <div class="mb-3">
-                          <label for="editStationNameInput" class="form-label">Name</label>
-                          <input type="text" class="form-control" id="editStationNameInput">
-                        </div>
-                        <div class="mb-3">
-                            <label for="editStationFaviconInput" class="form-label">Favicon</label>
-                            <input type="text" class="form-control" id="editStationFaviconInput">
-                        </div>
-                        <div class="mb-3">
-                            <label for="editStationURLInput" class="form-label">URL</label>
-                            <input type="text" class="form-control" id="editStationURLInput">
-                        </div>
-                        <div class="mb-3">
-                            <label for="editStationUidInput" class="form-label">UID</label>
-                            <input type="text" disabled class="form-control" id="editStationUidInput">
-                        </div>
-                      </form>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                  <button type="button" onclick="saveEditedFavourite()" class="btn btn-primary">Save changes</button>
-                </div>
-              </div>
             </div>
-          </div>
-          <div class="toast-container position-fixed bottom-0 end-0 p-3">
-            <div id="liveToast" class="toast align-items-center" data-bs-autohide="true" data-bs-delay="5000" role="alert" aria-live="assertive" aria-atomic="true">
+        </div>
+        <div class="toast-container position-fixed bottom-0 end-0 p-3">
+            <div id="liveToast" class="toast align-items-center" data-bs-autohide="true" data-bs-delay="5000"
+                role="alert" aria-live="assertive" aria-atomic="true">
                 <div class="d-flex">
-                  <div id="toastMessage" class="toast-body">
-                    Hello, world! This is a toast message.
-                  </div>
-                  <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    <div id="toastMessage" class="toast-body">
+                        Hello, world! This is a toast message.
+                    </div>
+                    <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"
+                        aria-label="Close"></button>
                 </div>
-              </div>
-          </div>
-    <script src="radio.js"></script>
-    
-</body>
+            </div>
+        </div>
+        <script src="radio.js"></script>
+
+    </body>
+
 </html>

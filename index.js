@@ -103,36 +103,24 @@ app.post('/login', async (req, res) => {
 });
 
 /**
- * Searches for radio stations and renders the index page with results.
- * @route POST /
+ * Searches for radio stations and returns the results as JSON.
+ * @route GET /search
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
  */
-app.post('/', async (req, res) => {
-    const isLoggedIn = req.session.isLoggedIn;
-
-    if (isLoggedIn) {
-        const isUpToDate = packageJson.version === await getLatestGitHubVersion();
-        const version = ({
-            appVersion: packageJson.version,
-            isUpToDate,
-        });
-        search = req.body.searchterm;
-        if (search != "" && search != null) {
-            let filter = {
-                by: 'name',         // search in tag
-                searchterm: search // term in tag
-            }
-            RadioBrowser.getStations(filter)
-                .then(data => res.render('index', { data, search, version }))
-                .catch(error => console.error(error))
-        } else {
-            res.redirect("/");
+app.get('/search', async (req, res) => {
+    search = req.query.searchterm;
+    if (search != "" && search != null) {
+        let filter = {
+            by: 'name',         // search in tag
+            searchterm: search // term in tag
         }
+        RadioBrowser.getStations(filter)
+            .then(data => res.json(data))
+            .catch(error => console.error(error))
     } else {
-        res.render('login');
+        res.status(400).json({ error: 'Search term is required' });
     }
-
 });
 
 /**
