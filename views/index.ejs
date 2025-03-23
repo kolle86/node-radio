@@ -9,12 +9,15 @@
             <div class="container p-3">
                 <div class="d-flex h-auto">
 
-                    <div class="my-auto d-flex pr-3">
+                    <div class="my-auto d-flex">
                         <span id="volume_icon" onclick="mute()"
-                            class="text-body-tertiary clickable bi-volume-up"></span>
+                            class="text-body-tertiary clickable bi-volume-up">
+                        </span>
                     </div>
-                    <div class="my-auto d-flex px-3"><input oninput="changeVolume(this.value)" type="range"
-                            class="form-range" id="volumeRange"></div>
+
+                    <div class="my-auto d-flex pe-3 ps-1"><input oninput="changeVolume(this.value)" type="range"
+                            class="form-range" id="volumeRange">
+                    </div>
 
                     <div id="visualizer_div" class="my-auto d-flex w-100 justify-content-center">
                         <div id="visualizer" class="w-100"></div>
