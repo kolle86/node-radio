@@ -53,7 +53,15 @@ function initAudioMotion() {
     analyzer.registerGradient('myGradient', {
         colorStops: [{ color: '#6c757d' }]
     });
-    analyzer.setOptions({ gradient: 'myGradient' });
+
+    const selectElement = document.getElementById("selectGradient");
+    let savedGradient = localStorage.getItem("gradient") || "default";
+    selectElement.value = savedGradient;
+    if (savedGradient == "default") {
+        savedGradient = "myGradient";
+    }
+    analyzer.setOptions({ gradient: savedGradient });
+
 
     // Load visualizer settings from localStorage
     if (localStorage.getItem("visualizer") === "0") {
@@ -200,6 +208,16 @@ function toggleVisualizer() {
     
     visualizer.style.visibility = isVisible ? "hidden" : "visible";
     localStorage.setItem("visualizer", isVisible ? 0 : 1);
+}
+
+
+function changeGradient(gradient){
+    localStorage.setItem("gradient", gradient);
+    if(gradient === "default"){
+        audioMotion.setOptions({ gradient: 'myGradient' });
+    }else{
+        audioMotion.setOptions({ gradient: gradient });
+    }
 }
 
 /**

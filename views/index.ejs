@@ -74,6 +74,15 @@
                                         <label class="form-check-label" for="visualizerCheck">Spectrum
                                             visualizer</label>
                                         </span>
+                                        <select class="form-select mt-3" id="selectGradient" aria-label="Default select example" onchange="changeGradient(this.value)">
+                                            <option value="default">Default</option>
+                                            <option value="classic">Classic</option>
+                                            <option value="orangered">Orangered</option>
+                                            <option value="prism">Prism</option>
+                                            <option value="rainbow">Rainbow</option>
+                                            <option value="steelblue">Steelblue</option>
+                                          </select>
+                                    </form>
                                 </li>
                                 <hr>
                                 <li class="nav-item"><a class="bi bi-box-arrow-left nav-link" href="/logout"> Logout</a>
