@@ -781,7 +781,7 @@ function appendSearchResults(stations){
     searchButton.innerHTML = "";
     searchButton.classList.add("bi-search");
     const container = document.getElementById("searchResults");
-    container.classList.add("mt-3");
+    container.classList.add("mt-2");
     // Alte List-Group entfernen, falls vorhanden
     container.innerHTML = "";
 
@@ -790,47 +790,54 @@ function appendSearchResults(stations){
     listGroup.id = "stations";
     listGroup.className = "list-group";
 
-    stations.forEach(station => {
-        const listItem = document.createElement("a");
-        listItem.id = station.stationuuid + "_search";
-        listItem.href = "javascript:void(0);";
-        listItem.className = "list-group-item list-group-item-action d-flex justify-content-between align-items-start";
-        listItem.onclick = function () {
-            clickStation(station.url_resolved, station.favicon, station.name, station.stationuuid);
-        };
-
-        const textContainer = document.createElement("div");
-        textContainer.className = "ms-2 me-auto";
-
-        const stationName = document.createElement("div");
-        stationName.className = "fw-bold";
-        stationName.textContent = station.name;
-
-        textContainer.appendChild(stationName);
-
-        if (station.country) {
-            textContainer.appendChild(document.createTextNode(station.country + " "));
-        }
-
-        const details = [];
-        if (station.bitrate) details.push(`${station.bitrate} kbps`);
-        if (station.codec) details.push(station.codec);
-
-        if (details.length > 0) {
-            textContainer.appendChild(document.createTextNode(`[${details.join(" ")}]`));
-        }
-
-        listItem.appendChild(textContainer);
-
-        if (station.favicon) {
-            const img = document.createElement("img");
-            img.className = "rounded station-icon";
-            img.src = station.favicon;
-            listItem.appendChild(img);
-        }
-
+    if(stations.length > 0){
+        stations.forEach(station => {
+            const listItem = document.createElement("a");
+            listItem.id = station.stationuuid + "_search";
+            listItem.href = "javascript:void(0);";
+            listItem.className = "list-group-item list-group-item-action d-flex justify-content-between align-items-start";
+            listItem.onclick = function () {
+                clickStation(station.url_resolved, station.favicon, station.name, station.stationuuid);
+            };
+    
+            const textContainer = document.createElement("div");
+            textContainer.className = "ms-2 me-auto";
+    
+            const stationName = document.createElement("div");
+            stationName.className = "fw-bold";
+            stationName.textContent = station.name;
+    
+            textContainer.appendChild(stationName);
+    
+            if (station.country) {
+                textContainer.appendChild(document.createTextNode(station.country + " "));
+            }
+    
+            const details = [];
+            if (station.bitrate) details.push(`${station.bitrate} kbps`);
+            if (station.codec) details.push(station.codec);
+    
+            if (details.length > 0) {
+                textContainer.appendChild(document.createTextNode(`[${details.join(" ")}]`));
+            }
+    
+            listItem.appendChild(textContainer);
+    
+            if (station.favicon) {
+                const img = document.createElement("img");
+                img.className = "rounded station-icon";
+                img.src = station.favicon;
+                listItem.appendChild(img);
+            }
+    
+            listGroup.appendChild(listItem);
+        });
+    }else{
+        const listItem = document.createElement("li");
+        listItem.className = "list-group-item";
+        listItem.innerHTML = "No results";
         listGroup.appendChild(listItem);
-    });
+    }
 
     // Neue List-Group in den Container einfügen
     container.appendChild(listGroup);
@@ -838,7 +845,7 @@ function appendSearchResults(stations){
 
 function resetSearch(){
      document.getElementById("searchResults").innerHTML = "";
-     document.getElementById("searchResults").classList.remove("mt-3");
+     document.getElementById("searchResults").classList.remove("mt-2");
      document.getElementById("searchField").value = "";
      setMenu();
 }
