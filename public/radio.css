@@ -55,7 +55,3 @@ a img{
 .nav-link.disabled{
     color: var(--bs-secondary-color) !important;
 }
-
-.navbar-toggler-icon {
-    transform: scale(1.75);
-}
