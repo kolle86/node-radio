@@ -886,8 +886,8 @@ function appendSearchResults(stations) {
 
             if (index < stations.length) {
                 const loadMoreButton = document.createElement("button");
-                loadMoreButton.className = "btn btn-primary mt-2";
-                loadMoreButton.textContent = "Mehr laden";
+                loadMoreButton.className = "btn btn-primary mt-2 bi bi-chevron-double-down";
+                loadMoreButton.textContent = " Show more";
                 loadMoreButton.onclick = function () {
                     loadMoreButton.remove();
                     loadMore();
@@ -917,7 +917,7 @@ function resetSearch(){
 function submitSearch(event) {
     if (event.key === 'Enter') {
       event.preventDefault(); 
-      searchStations(document.getElementById('searchField').value); 
+      searchButton.onclick();
     }
   }
 
