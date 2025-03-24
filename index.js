@@ -120,7 +120,6 @@ app.get('/search', async (req, res) => {
             order: orderBy.toLowerCase(),
             searchterm: search,
             reverse: reverse,
-            limit: '10000'
         }
         RadioBrowser.getStations(filter)
             .then(data => res.json(data))
