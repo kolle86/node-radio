@@ -934,8 +934,8 @@ function resetSearch() {
 
 function submitSearch(event) {
     if (event.key === 'Enter') {
-        event.preventDefault();
-        searchButton.onclick();
+      event.preventDefault(); 
+      searchButton.onclick();
     }
 }
 
