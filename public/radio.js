@@ -814,72 +814,98 @@ async function searchStations(searchTerm, searchBy, orderBy) {
     }
 }
 
-function appendSearchResults(stations){
+function appendSearchResults(stations) {
     searchButton.innerHTML = "";
     searchButton.classList.add("bi-search");
     const container = document.getElementById("searchResults");
     container.classList.add("mt-2");
-    // Alte List-Group entfernen, falls vorhanden
     container.innerHTML = "";
 
-    // Neue List-Group erstellen
     const listGroup = document.createElement("ol");
     listGroup.id = "stations";
     listGroup.className = "list-group";
+    container.appendChild(listGroup);
 
-    if(stations.length > 0){
-        stations.forEach(station => {
-            const listItem = document.createElement("a");
-            listItem.id = station.stationuuid + "_search";
-            listItem.href = "javascript:void(0);";
-            listItem.className = "list-group-item list-group-item-action d-flex justify-content-between align-items-start";
-            listItem.onclick = function () {
-                clickStation(station.url_resolved, station.favicon, station.name, station.stationuuid);
-            };
-    
-            const textContainer = document.createElement("div");
-            textContainer.className = "ms-2 me-auto";
-    
-            const stationName = document.createElement("div");
-            stationName.className = "fw-bold";
-            stationName.textContent = station.name;
-    
-            textContainer.appendChild(stationName);
-    
-            if (station.country) {
-                textContainer.appendChild(document.createTextNode(station.country + " "));
+    if (stations.length > 0) {
+        const headerItem = document.createElement("li");
+        headerItem.className = "list-group-item d-flex justify-content-between align-items-center bg-dark-subtle";
+        headerItem.textContent = "Search results";
+
+        const closeButton = document.createElement("button");
+        closeButton.className = "btn btn-sm btn-secondary bi bi-x-lg";
+        closeButton.onclick = function () {
+            resetSearch();
+        };
+        headerItem.appendChild(closeButton);
+        listGroup.appendChild(headerItem);
+
+        let index = 0;
+        const batchSize = 100;
+
+        function loadMore() {
+            const fragment = document.createDocumentFragment();
+            for (let i = 0; i < batchSize && index < stations.length; i++, index++) {
+                const station = stations[index];
+                const listItem = document.createElement("a");
+                listItem.id = station.stationuuid + "_search";
+                listItem.href = "javascript:void(0);";
+                listItem.className = "list-group-item list-group-item-action d-flex justify-content-between align-items-start";
+                listItem.onclick = function () {
+                    clickStation(station.url_resolved, station.favicon, station.name, station.stationuuid);
+                };
+
+                const textContainer = document.createElement("div");
+                textContainer.className = "ms-2 me-auto";
+                const stationName = document.createElement("div");
+                stationName.className = "fw-bold";
+                stationName.textContent = station.name;
+                textContainer.appendChild(stationName);
+
+                if (station.country) {
+                    textContainer.appendChild(document.createTextNode(station.country + " "));
+                }
+
+                const details = [];
+                if (station.bitrate) details.push(`${station.bitrate} kbps`);
+                if (station.codec) details.push(station.codec);
+                if (details.length > 0) {
+                    textContainer.appendChild(document.createTextNode(`[${details.join(" ")}]`));
+                }
+
+                listItem.appendChild(textContainer);
+                if (station.favicon) {
+                    const img = document.createElement("img");
+                    img.className = "rounded station-icon";
+                    img.src = station.favicon;
+                    img.loading = "lazy";
+                    listItem.appendChild(img);
+                }
+                fragment.appendChild(listItem);
             }
-    
-            const details = [];
-            if (station.bitrate) details.push(`${station.bitrate} kbps`);
-            if (station.codec) details.push(station.codec);
-    
-            if (details.length > 0) {
-                textContainer.appendChild(document.createTextNode(`[${details.join(" ")}]`));
+            listGroup.appendChild(fragment);
+
+            if (index < stations.length) {
+                const loadMoreButton = document.createElement("button");
+                loadMoreButton.className = "btn btn-primary mt-2";
+                loadMoreButton.textContent = "Mehr laden";
+                loadMoreButton.onclick = function () {
+                    loadMoreButton.remove();
+                    loadMore();
+                };
+                container.appendChild(loadMoreButton);
             }
-    
-            listItem.appendChild(textContainer);
-    
-            if (station.favicon) {
-                const img = document.createElement("img");
-                img.className = "rounded station-icon";
-                img.src = station.favicon;
-                img.loading = "lazy";
-                listItem.appendChild(img);
-            }
-    
-            listGroup.appendChild(listItem);
-        });
-    }else{
+        }
+
+        loadMore();
+    } else {
         const listItem = document.createElement("li");
         listItem.className = "list-group-item";
-        listItem.innerHTML = "No results";
+        listItem.textContent = "No results";
         listGroup.appendChild(listItem);
     }
-
-    // Neue List-Group in den Container einfügen
-    container.appendChild(listGroup);
 }
+
+
 
 function resetSearch(){
      document.getElementById("searchResults").innerHTML = "";
