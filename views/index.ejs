@@ -64,13 +64,36 @@
                                 <hr>
                                 <li class="nav-item">
                                     <form class="d-flex nav-link" role="search">
-                                        <div id="" class="input-group">
+                                        <div id="searchDiv" class="input-group">
                                             <input id="searchField" class="form-control"
                                                 onkeypress="submitSearch(event)" type="search" name="searchterm"
-                                                placeholder="Search..." aria-label="Search">
+                                                placeholder="Search ..." aria-label="Search">
+
+                                            <button class="btn btn-secondary dropdown-toggle bi bi-filter" title="Search by..." type="button" id="searchByButton" data-bs-toggle="dropdown" aria-expanded="false"></button>
+                                            <ul class="dropdown-menu" id="searchBy">
+                                                <li><a class="dropdown-item" href="#" onclick="setSearchBy('Name', this)"><i class="bi bi-check"></i> Name</a></li>
+                                                <li><a class="dropdown-item" href="#" onclick="setSearchBy('Tag', this)"><i class="bi"></i> Tag</a></li>
+                                                <li><a class="dropdown-item" href="#" onclick="setSearchBy('Country', this)"><i class="bi"></i> Country</a></li>
+                                                <li><a class="dropdown-item" href="#" onclick="setSearchBy('Language', this)"><i class="bi"></i> Language</a></li>
+                                            </ul>   
+                                            
+                                            <button class="btn btn-secondary dropdown-toggle bi bi-sort-down" title="Order by..." type="button" id="orderByButton" data-bs-toggle="dropdown" aria-expanded="false"></button>
+                                            <ul class="dropdown-menu" id="orderBy">
+                                                <li><a class="dropdown-item" href="#" onclick="setOrderBy('Name', this)"><i class="bi bi-check"></i> Name</a></li>
+                                                <li><a class="dropdown-item" href="#" onclick="setOrderBy('Votes', this)"><i class="bi"></i> Votes</a></li>
+                                                <li><a class="dropdown-item" href="#" onclick="setOrderBy('Clickcount', this)"><i class="bi"></i> Clickcount</a></li>
+                                                <li><a class="dropdown-item" href="#" onclick="setOrderBy('Clicktrend', this)"><i class="bi"></i> Clicktrend</a></li>
+                                                <li><a class="dropdown-item" href="#" onclick="setOrderBy('Changetimestamp', this)"><i class="bi"></i> Changetimestamp</a></li>
+                                                <li><a class="dropdown-item" href="#" onclick="setOrderBy('Tags', this)"><i class="bi"></i> Tags</a></li>
+                                                <li><a class="dropdown-item" href="#" onclick="setOrderBy('Country', this)"><i class="bi"></i> Country</a></li>
+                                                <li><a class="dropdown-item" href="#" onclick="setOrderBy('Language', this)"><i class="bi"></i> Language</a></li>
+                                                <li><a class="dropdown-item" href="#" onclick="setOrderBy('Bitrate', this)"><i class="bi"></i> Bitrate</a></li>
+                                                <li><a class="dropdown-item" href="#" onclick="setOrderBy('Codec', this)"><i class="bi"></i> Codec</a></li>
+                                                <li><a class="dropdown-item" href="#" onclick="setOrderBy('Random', this)"><i class="bi"></i> Random</a></li>
+                                            </ul>
                                             <button class="btn btn-secondary bi bi-search" id="searchButton"
                                                 type="button"
-                                                onclick="searchStations(document.getElementById('searchField').value)"></button>
+                                                onclick="searchStations(document.getElementById('searchField').value, selectedSearchBy, selectedOrderBy)"></button>
                                             <button class="btn btn-secondary bi bi-x-lg" type="button"
                                                 onclick="resetSearch()"></button>
                                         </div>

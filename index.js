@@ -110,10 +110,17 @@ app.post('/login', async (req, res) => {
  */
 app.get('/search', async (req, res) => {
     search = req.query.searchterm;
+    searchBy = req.query.searchBy || 'name';
+    orderBy = req.query.orderBy || 'name';
+    let reverseOrder = ["votes", "clickcount", "clicktrend", "changetimestamp", "tags","bitrate"];
+    let reverse = reverseOrder.includes(orderBy.toLowerCase());
     if (search != "" && search != null) {
         let filter = {
-            by: 'name',         // search in tag
-            searchterm: search // term in tag
+            by: searchBy.toLowerCase(),
+            order: orderBy.toLowerCase(),
+            searchterm: search,
+            reverse: reverse,
+            limit: '10000'
         }
         RadioBrowser.getStations(filter)
             .then(data => res.json(data))

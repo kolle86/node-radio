@@ -11,6 +11,8 @@ let playPromise;
 let chromeCastPlayerState=null;
 let chromeCastIsConnected=false;
 let skipFirstTrackUpdate = true;
+let selectedSearchBy = 'Name';
+let selectedOrderBy = 'Name';
 
 // Initialize audio visualizer
 const audioMotion = initAudioMotion();
@@ -149,6 +151,18 @@ function chromeCastPlay(){
         handleTrackInfo(); 
       },
       function(errorCode) { console.log('Error code: ' + errorCode); });
+}
+
+function setSearchBy(criteria, element) {
+    selectedSearchBy = criteria;
+    document.querySelectorAll('#searchBy .dropdown-item i').forEach(icon => icon.classList.remove('bi-check'));
+    element.querySelector('i').classList.add('bi-check');
+}
+
+function setOrderBy(criteria, element) {
+    selectedOrderBy = criteria;
+    document.querySelectorAll('#orderBy .dropdown-item i').forEach(icon => icon.classList.remove('bi-check'));
+    element.querySelector('i').classList.add('bi-check');
 }
 
 /**
@@ -779,8 +793,8 @@ function handleCoverResponse(data) {
  * Searches for radio stations using the /search route
  * @param {string} searchTerm - The search term
  */
-async function searchStations(searchTerm) {
-    const url = `/search?searchterm=${encodeURIComponent(searchTerm)}`;
+async function searchStations(searchTerm, searchBy, orderBy) {
+    const url = `/search?searchterm=${encodeURIComponent(searchTerm)}&searchBy=${encodeURIComponent(searchBy)}&orderBy=${encodeURIComponent(orderBy)}`;
     if(searchTerm.length >= 3){
         searchButton.innerHTML = "<span class='spinner-border'></span>";
         searchButton.classList.remove("bi-search");
