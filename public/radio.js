@@ -795,7 +795,7 @@ function handleCoverResponse(data) {
  */
 async function searchStations(searchTerm, searchBy, orderBy) {
     const url = `/search?searchterm=${encodeURIComponent(searchTerm)}&searchBy=${encodeURIComponent(searchBy)}&orderBy=${encodeURIComponent(orderBy)}`;
-    if (searchTerm.length >= 3) {
+    if (searchTerm.length >= 1) {
         searchButton.innerHTML = "<span class='spinner-border'></span>";
         searchButton.classList.remove("bi-search");
         try {
@@ -810,7 +810,7 @@ async function searchStations(searchTerm, searchBy, orderBy) {
             newToast(error.message);
         }
     } else {
-        newToast("Please enter at least 3 characters.");
+        newToast("Please enter at least 1 characters.");
     }
 }
 
