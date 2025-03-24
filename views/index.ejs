@@ -236,20 +236,31 @@
                     <div class="modal-body">
                         <form>
                             <div class="mb-3">
-                                <label for="editStationNameInput" class="form-label">Name</label>
-                                <input type="text" class="form-control" id="editStationNameInput">
+                                <div class="input-group">
+                                    <span class="input-group-text" id="editStationNameInputLabel">Name</span>
+                                    <input type="text" class="form-control" id="editStationNameInput" aria-labelledby="editStationNameInputLabel">
+                                </div>
                             </div>
+                            
                             <div class="mb-3">
-                                <label for="editStationFaviconInput" class="form-label">Favicon</label>
-                                <input type="text" class="form-control" id="editStationFaviconInput">
+                                <div class="input-group">
+                                    <span class="input-group-text" id="editStationFaviconInputLabel">Favicon</span>
+                                    <input type="text" class="form-control" id="editStationFaviconInput" aria-labelledby="editStationFaviconInputLabel">
+                                </div>
                             </div>
+                            
                             <div class="mb-3">
-                                <label for="editStationURLInput" class="form-label">URL</label>
-                                <input type="text" class="form-control" id="editStationURLInput">
+                                <div class="input-group">
+                                    <span class="input-group-text" id="editStationURLInputLabel">URL</span>
+                                    <input type="text" class="form-control" id="editStationURLInput" aria-labelledby="editStationURLInputLabel">
+                                </div>
                             </div>
+                            
                             <div class="mb-3">
-                                <label for="editStationUidInput" class="form-label">UID</label>
-                                <input type="text" disabled class="form-control" id="editStationUidInput">
+                                <div class="input-group">
+                                    <span class="input-group-text" id="editStationUidInputLabel">UID</span>
+                                    <input type="text" disabled class="form-control" id="editStationUidInput" aria-labelledby="editStationUidInputLabel">
+                                </div>
                             </div>
                         </form>
                     </div>
