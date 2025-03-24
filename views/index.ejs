@@ -52,7 +52,7 @@
                         </div>
                         <div class="offcanvas-body">
                             <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
-                                <li class="nav-item">
+                               <!-- <li class="nav-item">
                                     <a id="menuEdit" onclick="toggleEditModal()"
                                         class="disabled nav-link bi bi-pencil-square" href="javascript:void(0);">
                                         Edit</a>
@@ -67,6 +67,18 @@
                                         class="disabled nav-link bi bi-bookmark-dash " href="javascript:void(0);">
                                         Remove</a>
                                 </li>
+                                -->
+                                <div class="btn-group" role="group" aria-label="Button-Gruppe">
+                                    <button id="menuEdit" onclick="toggleEditModal()" class="btn btn-secondary disabled">
+                                        <i class="bi bi-pencil-square"></i> Edit
+                                    </button>
+                                    <button id="menuAdd" onclick="favouritesAction('add')" class="btn btn-secondary disabled">
+                                        <i class="bi bi-bookmark-plus"></i> Add
+                                    </button>
+                                    <button id="menuRemove" onclick="favouritesAction('remove')" class="btn btn-secondary disabled">
+                                        <i class="bi bi-bookmark-dash"></i> Remove
+                                    </button>
+                                </div>
                                 <hr>
                                 <li class="nav-item">
                                     <form class="d-flex nav-link" role="search">
@@ -148,24 +160,27 @@
                                 <hr>
                                 <li class="nav-item">
                                     <form class="nav-link">
-                                        <input checked type="checkbox" class="form-check-input" id="visualizerCheck"
-                                            onchange="toggleVisualizer();">
-                                        <label class="form-check-label" for="visualizerCheck">Spectrum
-                                            visualizer</label>
-                                        </span>
-                                        <select class="form-select mt-3" id="selectGradient"
-                                            aria-label="Default select example" onchange="changeGradient(this.value)">
-                                            <option value="default">Default</option>
-                                            <option value="classic">Classic</option>
-                                            <option value="orangered">Orangered</option>
-                                            <option value="prism">Prism</option>
-                                            <option value="rainbow">Rainbow</option>
-                                            <option value="steelblue">Steelblue</option>
-                                        </select>
+                                        <div class="input-group">
+                                            <div class="input-group-text">
+                                                <input checked type="checkbox" class="form-check-input mt-0" id="visualizerCheck" onchange="toggleVisualizer();">
+                                                <label class="ms-2" for="visualizerCheck">Spectrum visualizer</label>
+                                            </div>
+                                            <select class="form-select" id="selectGradient" aria-label="Default select example" onchange="changeGradient(this.value)">
+                                                <option value="default">Default</option>
+                                                <option value="classic">Classic</option>
+                                                <option value="orangered">Orangered</option>
+                                                <option value="prism">Prism</option>
+                                                <option value="rainbow">Rainbow</option>
+                                                <option value="steelblue">Steelblue</option>
+                                            </select>
+                                        </div>
                                     </form>
                                 </li>
                                 <hr>
-                                <li class="nav-item"><a class="bi bi-box-arrow-left nav-link" href="/logout"> Logout</a>
+                                <li class="nav-item">
+                                    <a class="btn btn-secondary" href="/logout">
+                                        <i class="bi bi-box-arrow-left"></i> Logout
+                                    </a>
                                 </li>
                                 <hr>
                                 <li class="nav-item">
@@ -173,14 +188,14 @@
                                     <span class="text-muted">v<%= version.appVersion %></span>
                                     <% if (!version.isUpToDate ){ %>
                                         <span class="text-warning">
-                                            (update available)
+                                             (update available)
                                         </span>
                                         <%}%>
 
                                 </li>
                                 <li class="nav-item">
                                     <a class="bi bi-github nav-link" target="_blank"
-                                        href="https://github.com/kolle86/node-radio"> NodeRadio Repo</a>
+                                        href="https://github.com/kolle86/node-radio"> View Source</a>
                                 </li>
                             </ul>
                         </div>
