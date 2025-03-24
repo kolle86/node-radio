@@ -112,7 +112,7 @@ app.get('/search', async (req, res) => {
     search = req.query.searchterm;
     searchBy = req.query.searchBy || 'name';
     orderBy = req.query.orderBy || 'name';
-    let reverseOrder = ["votes", "clickcount", "clicktrend", "changetimestamp", "tags","bitrate"];
+    let reverseOrder = ["votes", "clickcount", "clicktrend", "changetimestamp", "tags", "bitrate"];
     let reverse = reverseOrder.includes(orderBy.toLowerCase());
     if (search != "" && search != null) {
         let filter = {
@@ -231,7 +231,7 @@ app.get("/cover", async (req, res) => {
             const coverUrl = response.data.results[0].artworkUrl100.replace("100x100bb", "500x500bb");
             result = { searchTerm, coverUrl };
         } else {
-            result = { searchTerm, coverUrl: null }; 
+            result = { searchTerm, coverUrl: null };
         }
 
         album_cover_cache = { query: title, response: result };

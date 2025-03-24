@@ -8,8 +8,8 @@ const searchButton = document.getElementById("searchButton");
 const currentStation = { url: null, name: null, favicon: null, uuid: null };
 let favourites;
 let playPromise;
-let chromeCastPlayerState=null;
-let chromeCastIsConnected=false;
+let chromeCastPlayerState = null;
+let chromeCastIsConnected = false;
 let skipFirstTrackUpdate = true;
 let selectedSearchBy = 'Name';
 let selectedOrderBy = 'Name';
@@ -82,7 +82,7 @@ function setupMediaSessionHandlers() {
     if (!('mediaSession' in navigator)) return;
 
     navigator.mediaSession.setActionHandler('play', () => {
-            radio.load();
+        radio.load();
     });
 
     navigator.mediaSession.setActionHandler('previoustrack', () => {
@@ -94,7 +94,7 @@ function setupMediaSessionHandlers() {
     });
 }
 
-window['__onGCastApiAvailable'] = function(isAvailable) {
+window['__onGCastApiAvailable'] = function (isAvailable) {
     if (isAvailable) {
         setTimeout(() => {
             initializeCastApi();
@@ -102,28 +102,28 @@ window['__onGCastApiAvailable'] = function(isAvailable) {
     }
 };
 
-initializeCastApi = function() {
+initializeCastApi = function () {
     cast.framework.CastContext.getInstance().setOptions({
-      receiverApplicationId: "835FA0CB",
-      //receiverApplicationId: chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID,
-      autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
+        receiverApplicationId: "835FA0CB",
+        //receiverApplicationId: chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID,
+        autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
     });
     player = new cast.framework.RemotePlayer();
     playerController = new cast.framework.RemotePlayerController(player);
     playerController.addEventListener(
-        cast.framework.RemotePlayerEventType.IS_CONNECTED_CHANGED, function() {
-            if(player.isConnected){
-            chromeCastIsConnected=true;
-            radio.pause();
-            radio.onpause();
-            }else{
-            chromeCastIsConnected=false;
+        cast.framework.RemotePlayerEventType.IS_CONNECTED_CHANGED, function () {
+            if (player.isConnected) {
+                chromeCastIsConnected = true;
+                radio.pause();
+                radio.onpause();
+            } else {
+                chromeCastIsConnected = false;
             }
             Object.assign(currentStation, { name: null, url: null, favicon: null, uuid: null });
             updateUI()
-    });
+        });
     playerController.addEventListener(
-        cast.framework.RemotePlayerEventType.PLAYER_STATE_CHANGED, function() {
+        cast.framework.RemotePlayerEventType.PLAYER_STATE_CHANGED, function () {
             chromeCastPlayerState = player.playerState;
             if (chromeCastPlayerState === "PLAYING") {
                 setStatusIcon("bi-pause-circle");
@@ -134,35 +134,35 @@ initializeCastApi = function() {
             } else if (chromeCastPlayerState === "BUFFERING") {
                 setStatusIcon("spinner-border");
             }
-    });
+        });
 
 };
 
-function chromeCastPlay(){
+function chromeCastPlay() {
     var castSession = cast.framework.CastContext.getInstance().getCurrentSession();
     var mediaInfo = new chrome.cast.media.MediaInfo(currentStation.url, "audio/mp3");
     mediaInfo.streamType = chrome.cast.media.StreamType.BUFFERED;
     mediaInfo.metadata = new chrome.cast.media.MusicTrackMediaMetadata();
     mediaInfo.metadata.title = currentStation.name;
-    mediaInfo.metadata.images = [{url: currentStation.favicon}];            
+    mediaInfo.metadata.images = [{ url: currentStation.favicon }];
     var request = new chrome.cast.media.LoadRequest(mediaInfo);
     castSession.loadMedia(request).then(
-      function() { 
-        handleTrackInfo(); 
-      },
-      function(errorCode) { console.log('Error code: ' + errorCode); });
+        function () {
+            handleTrackInfo();
+        },
+        function (errorCode) { console.log('Error code: ' + errorCode); });
 }
 
 function setSearchBy(criteria, element) {
     selectedSearchBy = criteria;
-    document.querySelectorAll('#searchBy .dropdown-item i').forEach(icon => icon.classList.remove('bi-check'));
-    element.querySelector('i').classList.add('bi-check');
+    document.querySelectorAll('#searchBy .dropdown-item i').forEach(icon => icon.classList.remove('bi-check-lg'));
+    element.querySelector('i').classList.add('bi-check-lg');
 }
 
 function setOrderBy(criteria, element) {
     selectedOrderBy = criteria;
-    document.querySelectorAll('#orderBy .dropdown-item i').forEach(icon => icon.classList.remove('bi-check'));
-    element.querySelector('i').classList.add('bi-check');
+    document.querySelectorAll('#orderBy .dropdown-item i').forEach(icon => icon.classList.remove('bi-check-lg'));
+    element.querySelector('i').classList.add('bi-check-lg');
 }
 
 /**
@@ -171,13 +171,13 @@ function setOrderBy(criteria, element) {
  */
 function navigateStation(direction) {
     if (!favourites || !favourites.stations || !currentStation.uuid) return;
-    
+
     for (let i = 0; i < favourites.stations.length; i++) {
         if (favourites.stations[i].uuid === currentStation.uuid) {
             let nextIndex = i + direction;
             if (nextIndex < 0) nextIndex = favourites.stations.length - 1;
             if (nextIndex >= favourites.stations.length) nextIndex = 0;
-            
+
             const station = favourites.stations[nextIndex];
             clickStation(station.url, station.favicon, station.name, station.uuid);
             break;
@@ -190,7 +190,7 @@ function navigateStation(direction) {
  */
 function initVolumeSettings() {
     const volumeRange = document.getElementById('volumeRange');
-    
+
     if (localStorage.getItem("volume") !== null) {
         const savedVolume = localStorage.getItem("volume");
         radio.volume = parseFloat(savedVolume);
@@ -219,17 +219,17 @@ function toggleVisualizer() {
     audioMotion.toggleAnalyzer();
     const visualizer = document.getElementById("visualizer");
     const isVisible = getComputedStyle(visualizer).visibility === 'visible';
-    
+
     visualizer.style.visibility = isVisible ? "hidden" : "visible";
     localStorage.setItem("visualizer", isVisible ? 0 : 1);
 }
 
 
-function changeGradient(gradient){
+function changeGradient(gradient) {
     localStorage.setItem("gradient", gradient);
-    if(gradient === "default"){
+    if (gradient === "default") {
         audioMotion.setOptions({ gradient: 'myGradient' });
-    }else{
+    } else {
         audioMotion.setOptions({ gradient: gradient });
     }
 }
@@ -246,16 +246,16 @@ function clickStation(url, artwork, station, stationuuid) {
         // New station was selected
         Object.assign(currentStation, { name: station, url: url, favicon: artwork, uuid: stationuuid });
         document.title = station;
-        if(cast.framework.CastContext.getInstance().getCurrentSession()){
+        if (cast.framework.CastContext.getInstance().getCurrentSession()) {
             chromeCastPlay();
-        }else{
+        } else {
             radio.src = url;
             playPromise = radio.play();
         }
-        
+
     } else {
         // Same station was selected - toggle play/pause
-        if(!chromeCastIsConnected){
+        if (!chromeCastIsConnected) {
             if (radio.paused) {
                 radio.load();
             } else {
@@ -263,10 +263,10 @@ function clickStation(url, artwork, station, stationuuid) {
                 if (playPromise !== undefined) {
                     playPromise.then(() => {
                         radio.pause();
-                    }).catch(() => {});
+                    }).catch(() => { });
                 }
             }
-        }else{
+        } else {
             let session = cast.framework.CastContext.getInstance().getCurrentSession();
             if (!session) {
                 console.error("Keine aktive Chromecast-Sitzung.");
@@ -279,16 +279,16 @@ function clickStation(url, artwork, station, stationuuid) {
                 return;
             }
             let command;
-            if(chromeCastPlayerState==="PAUSED"){
+            if (chromeCastPlayerState === "PAUSED") {
                 command = new chrome.cast.media.PlayRequest();
-                media.play(command, 
+                media.play(command,
                     () => console.log("Chromecast play"),
                     (error) => console.error("Error:", error)
                 );
-            } else if(chromeCastPlayerState==="PLAYING"){
+            } else if (chromeCastPlayerState === "PLAYING") {
                 command = new chrome.cast.media.PauseRequest();
-                if (command){
-                    media.pause(command, 
+                if (command) {
+                    media.pause(command,
                         () => console.log("Chromecast pause"),
                         (error) => console.error("Error:", error)
                     );
@@ -304,12 +304,12 @@ function clickStation(url, artwork, station, stationuuid) {
  */
 function favouritesAction(action) {
     if (!currentStation.url) return;
-    
+
     if (action === "remove") {
         let stationElement = document.getElementById(currentStation.uuid);
         if (!stationElement?.classList.contains("active")) return;
         if (!stationElement.classList.contains("fav")) return;
-        
+
         if (confirm(`Remove ${currentStation.name} from favourites?`)) {
             const index = favourites.stations.findIndex(s => s.uuid === currentStation.uuid);
             if (index !== -1) {
@@ -319,13 +319,13 @@ function favouritesAction(action) {
             }
         }
     } else if (action === 'add') {
-        if(document.getElementById("emptyMessage")){
+        if (document.getElementById("emptyMessage")) {
             document.getElementById("emptyMessage").remove();
         }
         let stationElement = document.getElementById(currentStation.uuid + "_search");
         if (!stationElement?.classList.contains("active")) return;
         if (stationElement.classList.contains("fav")) return;
-        
+
         favourites.stations.push({
             url: currentStation.url,
             name: currentStation.name,
@@ -362,30 +362,30 @@ function saveFavouritesAndUpdate() {
 function renderFavourites() {
     // Remove existing favorites
     document.querySelectorAll(".fav").forEach(element => element.remove());
-    
+
     const favouritesContainer = document.getElementById("favourites");
-    
+
     if (!favourites.stations || favourites.stations.length === 0) {
         const emptyMessage = document.createElement("li");
         emptyMessage.innerHTML = 'Favourites are empty. <br>Select the upper right dropdown and search for stations. <br>Select a station from the results and add it to the favourites via the dropdown.';
         emptyMessage.setAttribute("class", "list-group-item");
-        emptyMessage.id="emptyMessage"
+        emptyMessage.id = "emptyMessage"
         favouritesContainer.appendChild(emptyMessage);
         return;
     }
 
     // Add favorites
     favourites.stations.forEach(station => {
-        const newFav = document.createElement("a");        
+        const newFav = document.createElement("a");
         newFav.innerHTML = `
             <div class="ms-2 me-auto">
                 <div class="fw-bold">${station.name}</div>
-                <div class="title">
+                <div class="title text-break">
                     <span class="me-1 bi" id="status_${station.uuid}"></span>
                     <span id="title_${station.uuid}"></span>
                 </div>
             </div>
-            <img id="favicon_${station.uuid}" class="rounded border station-icon" src="${station.favicon}" onerror="this.src='radio.svg'">
+            <img id="favicon_${station.uuid}" class="rounded shadow-lg station-icon" src="${station.favicon}" onerror="this.src='radio.svg'">
         `;
         newFav.href = "javascript:void(0);";
         newFav.id = station.uuid;
@@ -418,12 +418,12 @@ async function getFavs() {
 function moveFav(direction) {
     const stationElement = document.getElementById(currentStation.uuid);
     if (!stationElement?.classList.contains("active") || !stationElement?.classList.contains("fav")) return;
-    
+
     const index = favourites.stations.findIndex(s => s.uuid === currentStation.uuid);
     if (index === -1) return;
-    
+
     const item = favourites.stations.splice(index, 1)[0];
-    
+
     if (direction === "up") {
         const newIndex = index === 0 ? favourites.stations.length : index - 1;
         favourites.stations.splice(newIndex, 0, item);
@@ -431,7 +431,7 @@ function moveFav(direction) {
         const newIndex = index >= favourites.stations.length ? 0 : index + 1;
         favourites.stations.splice(newIndex, 0, item);
     }
-    
+
     saveFavouritesAndUpdate();
 }
 
@@ -442,7 +442,7 @@ function moveFav(direction) {
 function changeVolume(value) {
     radio.volume = value / 100;
     localStorage.setItem("volume", radio.volume);
-    
+
     // Adjust icon accordingly
     let iconClass = "bi-volume-up";
     if (value === 0) {
@@ -450,7 +450,7 @@ function changeVolume(value) {
     } else if (value < 50) {
         iconClass = "bi-volume-down";
     }
-    
+
     replaceVolumeIcon(iconClass);
 
     let volumeBar = document.getElementById("volumeProgress");
@@ -477,7 +477,7 @@ function mute() {
     const volumeRange = document.getElementById('volumeRange');
     radio.muted = !radio.muted;
     volumeRange.disabled = radio.muted;
-    
+
     if (radio.muted) {
         replaceVolumeIcon('bi-volume-mute');
         document.getElementById("volumeProgress").classList.add("volume-disabled");
@@ -493,7 +493,7 @@ function mute() {
 function toggleEditModal() {
     const stationElement = document.getElementById(currentStation.uuid);
     if (!stationElement?.classList.contains("active") || !stationElement?.classList.contains("fav")) return;
-    
+
     document.getElementById("editStationNameInput").value = currentStation.name;
     document.getElementById("editStationFaviconInput").value = currentStation.favicon;
     document.getElementById("editStationURLInput").value = currentStation.url;
@@ -507,7 +507,7 @@ function toggleEditModal() {
 function saveEditedFavourite() {
     const stationUuid = document.getElementById("editStationUidInput").value;
     const index = favourites.stations.findIndex(s => s.uuid === stationUuid);
-    
+
     if (index !== -1) {
         // Update station
         const updatedValues = {
@@ -515,10 +515,10 @@ function saveEditedFavourite() {
             favicon: document.getElementById("editStationFaviconInput").value,
             url: document.getElementById("editStationURLInput").value
         };
-        
+
         Object.assign(favourites.stations[index], updatedValues);
         Object.assign(currentStation, updatedValues);
-        
+
         fetch("/setfavs", {
             method: "POST",
             headers: {
@@ -527,10 +527,10 @@ function saveEditedFavourite() {
             body: JSON.stringify(favourites)
         }).then(() => {
             renderFavourites();
-            if(radio.src != updatedValues.url){
-                if(cast.framework.CastContext.getInstance().getCurrentSession()){
+            if (radio.src != updatedValues.url) {
+                if (cast.framework.CastContext.getInstance().getCurrentSession()) {
                     chromeCastPlay();
-                }else{
+                } else {
                     radio.src = currentStation.url;
                 }
             }
@@ -576,10 +576,10 @@ function resizedWindowEvent() {
  */
 function setStatusIcon(icon) {
     if (!currentStation.uuid) return;
-    
+
     const statusElement = document.getElementById("status_" + currentStation.uuid);
     if (!statusElement) return;
-    
+
     statusElement.classList.remove("bi-play-circle", "bi-pause-circle", "spinner-border", "bi-x-circle");
     statusElement.classList.add(icon);
 }
@@ -590,39 +590,39 @@ function setStatusIcon(icon) {
 function updateUI() {
     // Reset all list items and mark the active one
     const items = document.getElementsByClassName('list-group-item');
-    
+
     for (let i = 0; i < items.length; i++) {
         const item = items[i];
         item.classList.remove('active');
-        
+
         if (item.classList.contains("fav")) {
             const faviconElement = document.getElementById("favicon_" + item.id);
-            
+
             if (faviconElement?.classList.contains("cover")) {
                 faviconElement.classList.remove('cover');
                 faviconElement.classList.add('station-icon');
-                
+
                 const station = favourites.stations.find(s => s.uuid === item.id);
                 if (station) faviconElement.src = station.favicon;
             }
         }
-        
+
         // Reset title and status if not active
         const titleElement = document.getElementById("title_" + item.id);
         const statusElement = document.getElementById("status_" + item.id);
-        
+
         if (titleElement && item.id !== currentStation.uuid) {
             titleElement.innerHTML = "";
         }
-        
+
         if (statusElement && item.id !== currentStation.uuid) {
             statusElement.classList.remove("bi-play-circle", "bi-pause-circle", "spinner-border", "bi-x-circle");
         }
-        
+
         // Mark active station
         if (item.id === currentStation.uuid || item.id === currentStation.uuid + "_search") {
             item.classList.add('active');
-            
+
             if (item.classList.contains("fav")) {
                 const faviconElement = document.getElementById("favicon_" + item.id);
                 if (faviconElement) {
@@ -630,22 +630,22 @@ function updateUI() {
                     faviconElement.classList.add('cover');
                 }
             }
-            
+
             if (statusElement && !radio.paused) {
                 setStatusIcon("bi-pause-circle");
             }
         }
     }
-    
+
     // Update dropdown status
     updateDropdownStatus();
-    
+
     // Update Media Session Metadata
     updateMediaSessionMetadata();
-    
+
     // Subscribe to track information if a station is playing
     handleTrackInfo();
-    
+
     // Update menu status
     setMenu();
 }
@@ -656,7 +656,7 @@ function updateUI() {
 function updateDropdownStatus() {
     const dropdownStation = document.getElementById("dropdown_station");
     dropdownStation.classList.remove("bi-bookmark-check", "bi-bookmark-x");
-    
+
     const isBookmarked = document.getElementById(currentStation.uuid)?.classList.contains("fav");
     dropdownStation.classList.add(isBookmarked ? "bi-bookmark-check" : "bi-bookmark-x");
     dropdownStation.innerHTML = " " + currentStation.name;
@@ -681,8 +681,8 @@ function updateMediaSessionMetadata() {
  */
 function handleTrackInfo() {
     const isActiveFav = document.getElementById(currentStation.uuid)?.classList.contains("fav");
-    
-    if ((!radio.paused && isActiveFav) || (chromeCastPlayerState === "PLAYING" && isActiveFav) ) {
+
+    if ((!radio.paused && isActiveFav) || (chromeCastPlayerState === "PLAYING" && isActiveFav)) {
         skipFirstTrackUpdate = true;
         nowPlaying.trackStream(currentStation.url);
         nowPlaying.subscribe(handleTrackUpdate);
@@ -704,21 +704,21 @@ function handleTrackUpdate(info) {
         console.log(`Error captured with reason: ${info.error}`);
         document.getElementById("title_" + currentStation.uuid).innerHTML = "";
     } else {
-        if(!skipFirstTrackUpdate){
+        if (!skipFirstTrackUpdate) {
             document.getElementById("title_" + currentStation.uuid).innerHTML = info.title;
             if (info.title) {
                 fetchCover(info.title);
-            }           
-        }else{
+            }
+        } else {
             document.getElementById("title_" + currentStation.uuid).innerHTML = '';
             skipFirstTrackUpdate = false;
         }
     }
-    
+
     if ('mediaSession' in navigator && !chromeCastIsConnected) {
         navigator.mediaSession.metadata.artist = info.title;
     }
-    
+
     document.title = info.title ? `${currentStation.name} - ${info.title}` : currentStation.name;
 }
 
@@ -729,17 +729,17 @@ function setMenu() {
     const menuItems = [
         "menuEdit", "menuAdd", "menuRemove", "moveFavUp", "moveFavDown"
     ];
-    
+
     // Disable all menu items
     menuItems.forEach(id => {
         document.getElementById(id).classList.add("disabled");
     });
-    
+
     const activeElements = document.querySelectorAll(".list-group-item.active");
     if (!activeElements) return;
-    activeElements.forEach(activeElement =>{
+    activeElements.forEach(activeElement => {
         const isActiveFav = activeElement.classList.contains("fav");
-        
+
         if (isActiveFav) {
             // Favorite is active
             document.getElementById("menuEdit").classList.remove("disabled");
@@ -752,7 +752,7 @@ function setMenu() {
             document.getElementById("menuAdd").classList.remove("disabled");
         }
     });
-    
+
 }
 
 /**
@@ -779,7 +779,7 @@ async function fetchCover(title) {
 function handleCoverResponse(data) {
     const coverUrl = data.coverUrl || currentStation.favicon;
     document.getElementById("favicon_" + currentStation.uuid).src = coverUrl;
-    
+
     if ('mediaSession' in navigator) {
         navigator.mediaSession.metadata = new MediaMetadata({
             artwork: [{
@@ -795,7 +795,7 @@ function handleCoverResponse(data) {
  */
 async function searchStations(searchTerm, searchBy, orderBy) {
     const url = `/search?searchterm=${encodeURIComponent(searchTerm)}&searchBy=${encodeURIComponent(searchBy)}&orderBy=${encodeURIComponent(orderBy)}`;
-    if(searchTerm.length >= 3){
+    if (searchTerm.length >= 3) {
         searchButton.innerHTML = "<span class='spinner-border'></span>";
         searchButton.classList.remove("bi-search");
         try {
@@ -809,7 +809,7 @@ async function searchStations(searchTerm, searchBy, orderBy) {
             console.error("Error searching stations:", error);
             newToast(error.message);
         }
-    }else{
+    } else {
         newToast("Please enter at least 3 characters.");
     }
 }
@@ -853,9 +853,18 @@ function appendSearchResults(stations) {
                 listItem.onclick = function () {
                     clickStation(station.url_resolved, station.favicon, station.name, station.stationuuid);
                 };
+                const img = document.createElement("img");
+                img.className = "rounded shadow-lg station-icon-search";
+                if (station.favicon) {
+                    img.src = station.favicon;
+                }else{
+                    img.src = "radio.svg"
+                }
+                img.loading = "lazy";
+                listItem.appendChild(img);
 
                 const textContainer = document.createElement("div");
-                textContainer.className = "ms-2 me-auto";
+                textContainer.className = "ms-2 me-auto text-break";
                 const stationName = document.createElement("div");
                 stationName.className = "fw-bold";
                 stationName.textContent = station.name;
@@ -873,21 +882,30 @@ function appendSearchResults(stations) {
                 }
 
                 listItem.appendChild(textContainer);
-                if (station.favicon) {
-                    const img = document.createElement("img");
-                    img.className = "rounded station-icon";
-                    img.src = station.favicon;
-                    img.loading = "lazy";
-                    listItem.appendChild(img);
+
+                const badgeDiv = document.createElement("div");
+                badgeDiv.className="d-flex flex-column gap-1 align-items-end";
+                if (station.votes) {
+                    const spanVotes = document.createElement("span");
+                    spanVotes.className = "badge text-bg-dark border rounded-pill bi bi-hand-thumbs-up";
+                    spanVotes.textContent=station.votes;
+                    badgeDiv.appendChild(spanVotes);
                 }
+                if (station.clickcount) {
+                    const spanClicks = document.createElement("span");
+                    spanClicks.className = "badge text-bg-dark border rounded-pill bi bi-mouse";
+                    spanClicks.textContent=station.clickcount;
+                    badgeDiv.appendChild(spanClicks);
+                }
+                listItem.appendChild(badgeDiv);
                 fragment.appendChild(listItem);
             }
             listGroup.appendChild(fragment);
 
             if (index < stations.length) {
                 const loadMoreButton = document.createElement("button");
-                loadMoreButton.className = "btn btn-primary mt-2";
-                loadMoreButton.textContent = "Mehr laden";
+                loadMoreButton.className = "btn btn-primary mt-2 bi bi-chevron-double-down";
+                loadMoreButton.textContent = " Show more";
                 loadMoreButton.onclick = function () {
                     loadMoreButton.remove();
                     loadMore();
@@ -907,19 +925,19 @@ function appendSearchResults(stations) {
 
 
 
-function resetSearch(){
-     document.getElementById("searchResults").innerHTML = "";
-     document.getElementById("searchResults").classList.remove("mt-2");
-     document.getElementById("searchField").value = "";
-     setMenu();
+function resetSearch() {
+    document.getElementById("searchResults").innerHTML = "";
+    document.getElementById("searchResults").classList.remove("mt-2");
+    document.getElementById("searchField").value = "";
+    setMenu();
 }
 
 function submitSearch(event) {
     if (event.key === 'Enter') {
-      event.preventDefault(); 
-      searchStations(document.getElementById('searchField').value); 
+        event.preventDefault();
+        searchButton.onclick();
     }
-  }
+}
 
 // Event listeners
 radio.onvolumechange = () => {
@@ -929,18 +947,18 @@ radio.onvolumechange = () => {
 radio.onpause = () => {
     if (!radio.error) {
         nowPlaying.trackStream(undefined);
-        
+
         const titleElement = document.getElementById("title_" + currentStation.uuid);
         const faviconElement = document.getElementById("favicon_" + currentStation.uuid);
-        
+
         if (titleElement) {
             titleElement.innerHTML = "Paused";
             if (faviconElement) faviconElement.src = currentStation.favicon;
-            
+
             updateMediaSessionMetadata();
             setStatusIcon("bi-play-circle");
         }
-        
+
         document.title = currentStation.name;
     }
 };
@@ -951,7 +969,7 @@ radio.onerror = () => {
         if (titleElement) titleElement.innerHTML = radio.error.message;
         setStatusIcon("bi-x-circle");
     }
-    
+
     newToast(radio.error.message);
     setMenu();
 };

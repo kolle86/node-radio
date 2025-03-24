@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
 <%- include('partials/head.ejs'); -%>
+
     <body onresize="resizedWindowEvent()">
         <audio class="my-auto" id="radio" crossorigin="anonymous"></audio>
 
         <header class="sticky-top bg-body shadow">
             <div class="container p-3">
                 <div class="d-flex h-auto">
-                <!--
+                    <!--
                     <div class="my-auto d-flex pr-3">
                         <span id="volume_icon" onclick="mute()"
                             class="text-body-tertiary clickable bi-volume-up">
@@ -17,12 +18,15 @@
                 -->
                     <div class="d-flex my-auto me-2 ">
                         <div class="d-flex align-items-center">
-                            <span id="volume_icon" onclick="mute()" class="text-body-tertiary clickable bi bi-volume-up me-1">
+                            <span id="volume_icon" onclick="mute()"
+                                class="text-body-tertiary clickable bi bi-volume-up me-1">
                             </span>
                             <div class="flex-grow-1 position-relative">
-                                <input oninput="changeVolume(this.value)" type="range" class="form-range position-absolute w-100 h-100 opacity-0" id="volumeRange" min="0" max="100">
+                                <input oninput="changeVolume(this.value)" type="range"
+                                    class="form-range position-absolute w-100 h-100 opacity-0" id="volumeRange" min="0"
+                                    max="100">
                                 <div class="progress" style="width: 75px;">
-                                    <div id="volumeProgress" class="progress-bar progress-bar-striped" ></div>
+                                    <div id="volumeProgress" class="progress-bar progress-bar-striped"></div>
                                 </div>
                             </div>
                         </div>
@@ -31,7 +35,9 @@
                         <div id="visualizer" class="w-100"></div>
                     </div>
                     <nav class="navbar ms-1">
-                        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight" aria-label="Toggle navigation">
+                        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas"
+                            data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"
+                            aria-label="Toggle navigation">
                             <span class="navbar-toggler-icon"></span>
                         </button>
                     </nav>
@@ -69,27 +75,67 @@
                                                 onkeypress="submitSearch(event)" type="search" name="searchterm"
                                                 placeholder="Search ..." aria-label="Search">
 
-                                            <button class="btn btn-secondary dropdown-toggle bi bi-filter" title="Search by..." type="button" id="searchByButton" data-bs-toggle="dropdown" aria-expanded="false"></button>
+                                            <button class="btn btn-secondary dropdown-toggle bi bi-filter"
+                                                title="Search by..." type="button" id="searchByButton"
+                                                data-bs-toggle="dropdown" aria-expanded="false"></button>
                                             <ul class="dropdown-menu" id="searchBy">
-                                                <li><a class="dropdown-item" href="#" onclick="setSearchBy('Name', this)"><i class="bi bi-check"></i> Name</a></li>
-                                                <li><a class="dropdown-item" href="#" onclick="setSearchBy('Tag', this)"><i class="bi"></i> Tag</a></li>
-                                                <li><a class="dropdown-item" href="#" onclick="setSearchBy('Country', this)"><i class="bi"></i> Country</a></li>
-                                                <li><a class="dropdown-item" href="#" onclick="setSearchBy('Language', this)"><i class="bi"></i> Language</a></li>
-                                            </ul>   
-                                            
-                                            <button class="btn btn-secondary dropdown-toggle bi bi-sort-down" title="Order by..." type="button" id="orderByButton" data-bs-toggle="dropdown" aria-expanded="false"></button>
+                                                <li>
+                                                    <h6 class="dropdown-header">Search by...</h6>
+                                                </li>
+                                                <li><a class="dropdown-item" href="#"
+                                                        onclick="setSearchBy('Name', this)"><i
+                                                            class="bi bi-check-lg"></i> Name</a></li>
+                                                <li><a class="dropdown-item" href="#"
+                                                        onclick="setSearchBy('Tag', this)"><i class="bi"></i> Tag</a>
+                                                </li>
+                                                <li><a class="dropdown-item" href="#"
+                                                        onclick="setSearchBy('Country', this)"><i class="bi"></i>
+                                                        Country</a></li>
+                                                <li><a class="dropdown-item" href="#"
+                                                        onclick="setSearchBy('Language', this)"><i class="bi"></i>
+                                                        Language</a></li>
+                                            </ul>
+
+                                            <button class="btn btn-secondary dropdown-toggle bi bi-sort-down"
+                                                title="Order by..." type="button" id="orderByButton"
+                                                data-bs-toggle="dropdown" aria-expanded="false"></button>
                                             <ul class="dropdown-menu" id="orderBy">
-                                                <li><a class="dropdown-item" href="#" onclick="setOrderBy('Name', this)"><i class="bi bi-check"></i> Name</a></li>
-                                                <li><a class="dropdown-item" href="#" onclick="setOrderBy('Votes', this)"><i class="bi"></i> Votes</a></li>
-                                                <li><a class="dropdown-item" href="#" onclick="setOrderBy('Clickcount', this)"><i class="bi"></i> Clickcount</a></li>
-                                                <li><a class="dropdown-item" href="#" onclick="setOrderBy('Clicktrend', this)"><i class="bi"></i> Clicktrend</a></li>
-                                                <li><a class="dropdown-item" href="#" onclick="setOrderBy('Changetimestamp', this)"><i class="bi"></i> Changetimestamp</a></li>
-                                                <li><a class="dropdown-item" href="#" onclick="setOrderBy('Tags', this)"><i class="bi"></i> Tags</a></li>
-                                                <li><a class="dropdown-item" href="#" onclick="setOrderBy('Country', this)"><i class="bi"></i> Country</a></li>
-                                                <li><a class="dropdown-item" href="#" onclick="setOrderBy('Language', this)"><i class="bi"></i> Language</a></li>
-                                                <li><a class="dropdown-item" href="#" onclick="setOrderBy('Bitrate', this)"><i class="bi"></i> Bitrate</a></li>
-                                                <li><a class="dropdown-item" href="#" onclick="setOrderBy('Codec', this)"><i class="bi"></i> Codec</a></li>
-                                                <li><a class="dropdown-item" href="#" onclick="setOrderBy('Random', this)"><i class="bi"></i> Random</a></li>
+                                                <li>
+                                                    <h6 class="dropdown-header">Order by...</h6>
+                                                </li>
+                                                <li><a class="dropdown-item" href="#"
+                                                        onclick="setOrderBy('Name', this)"><i
+                                                            class="bi bi-check-lg"></i> Name</a></li>
+                                                <li><a class="dropdown-item" href="#"
+                                                        onclick="setOrderBy('Votes', this)"><i class="bi"></i> Votes</a>
+                                                </li>
+                                                <li><a class="dropdown-item" href="#"
+                                                        onclick="setOrderBy('Clickcount', this)"><i class="bi"></i>
+                                                        Clickcount</a></li>
+                                                <li><a class="dropdown-item" href="#"
+                                                        onclick="setOrderBy('Clicktrend', this)"><i class="bi"></i>
+                                                        Clicktrend</a></li>
+                                                <li><a class="dropdown-item" href="#"
+                                                        onclick="setOrderBy('Changetimestamp', this)"><i class="bi"></i>
+                                                        Changetimestamp</a></li>
+                                                <li><a class="dropdown-item" href="#"
+                                                        onclick="setOrderBy('Tags', this)"><i class="bi"></i> Tags</a>
+                                                </li>
+                                                <li><a class="dropdown-item" href="#"
+                                                        onclick="setOrderBy('Country', this)"><i class="bi"></i>
+                                                        Country</a></li>
+                                                <li><a class="dropdown-item" href="#"
+                                                        onclick="setOrderBy('Language', this)"><i class="bi"></i>
+                                                        Language</a></li>
+                                                <li><a class="dropdown-item" href="#"
+                                                        onclick="setOrderBy('Bitrate', this)"><i class="bi"></i>
+                                                        Bitrate</a></li>
+                                                <li><a class="dropdown-item" href="#"
+                                                        onclick="setOrderBy('Codec', this)"><i class="bi"></i> Codec</a>
+                                                </li>
+                                                <li><a class="dropdown-item" href="#"
+                                                        onclick="setOrderBy('Random', this)"><i class="bi"></i>
+                                                        Random</a></li>
                                             </ul>
                                             <button class="btn btn-secondary bi bi-search" id="searchButton"
                                                 type="button"
@@ -107,14 +153,15 @@
                                         <label class="form-check-label" for="visualizerCheck">Spectrum
                                             visualizer</label>
                                         </span>
-                                        <select class="form-select mt-3" id="selectGradient" aria-label="Default select example" onchange="changeGradient(this.value)">
+                                        <select class="form-select mt-3" id="selectGradient"
+                                            aria-label="Default select example" onchange="changeGradient(this.value)">
                                             <option value="default">Default</option>
                                             <option value="classic">Classic</option>
                                             <option value="orangered">Orangered</option>
                                             <option value="prism">Prism</option>
                                             <option value="rainbow">Rainbow</option>
                                             <option value="steelblue">Steelblue</option>
-                                          </select>
+                                        </select>
                                     </form>
                                 </li>
                                 <hr>

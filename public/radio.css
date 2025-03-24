@@ -32,6 +32,11 @@ a img{
     height: 56px;
 }
 
+.station-icon-search{        
+    width: 32px;
+    height: 32px;
+}
+
 .cover {
     width: 192px;
     height: 192px;
