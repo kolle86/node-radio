@@ -118,7 +118,7 @@ app.get('/search', async (req, res) => {
         let filter = {
             by: searchBy.toLowerCase(),
             order: orderBy.toLowerCase(),
-            searchterm: search,
+            searchterm: search.toLowerCase(),
             reverse: reverse,
         }
         RadioBrowser.getStations(filter)

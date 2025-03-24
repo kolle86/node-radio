@@ -864,6 +864,7 @@ function appendSearchResults(stations){
                 const img = document.createElement("img");
                 img.className = "rounded station-icon";
                 img.src = station.favicon;
+                img.loading = "lazy";
                 listItem.appendChild(img);
             }
     
