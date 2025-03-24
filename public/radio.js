@@ -810,7 +810,7 @@ async function searchStations(searchTerm, searchBy, orderBy) {
             newToast(error.message);
         }
     } else {
-        newToast("Please enter at least 1 characters.");
+        newToast("Please enter at least 1 character.");
     }
 }
 
