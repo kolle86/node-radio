@@ -37,6 +37,17 @@ a img{
     height: 32px;
 }
 
+#searchResults{
+    max-height: calc(100vh - 400px);
+    overflow: auto;
+}
+
+#dropdown_station{
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
 .cover {
     width: 192px;
     height: 192px;

@@ -180,24 +180,22 @@
                                 </li>
                                 <hr>
                                 <li class="nav-item">
-                                    <a class="btn btn-outline-secondary" href="/logout">
-                                        <i class="bi bi-box-arrow-left"></i> Logout
-                                    </a>
-                                </li>
-                                <hr>
-                                <li class="nav-item">
-
-                                    <span class="text-muted">v<%= version.appVersion %></span>
-                                    <% if (!version.isUpToDate ){ %>
-                                        <span class="text-warning">
-                                             (update available)
-                                        </span>
-                                        <%}%>
-
-                                </li>
-                                <li class="nav-item">
-                                    <a class="bi bi-github nav-link" target="_blank"
-                                        href="https://github.com/kolle86/node-radio"> View Source</a>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <a class="btn btn-outline-secondary" href="/logout">
+                                                    <i class="bi bi-box-arrow-left"></i> Logout
+                                                </a>
+                                            </div>
+                                            <div class="text-end">
+                                                <span class="text-muted">v<%= version.appVersion %></span>
+                                                <% if (!version.isUpToDate) { %>
+                                                    <span class="text-warning">(update available)</span>
+                                                <% } %>
+                                                <br>
+                                                <a class="bi bi-github nav-link d-inline" target="_blank"
+                                                    href="https://github.com/kolle86/node-radio">View Source</a>
+                                            </div>
+                                    </div>
                                 </li>
                             </ul>
                         </div>
