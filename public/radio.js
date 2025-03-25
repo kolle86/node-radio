@@ -855,7 +855,7 @@ function appendSearchResults(stations) {
                 const listItem = document.createElement("a");
                 listItem.id = station.stationuuid + "_search";
                 listItem.href = "javascript:void(0);";
-                listItem.className = "list-group-item list-group-item-action d-flex justify-content-between align-items-start";
+                listItem.className = "list-group-item list-group-item-action d-flex justify-content-between align-items-start px-1";
                 listItem.onclick = function () {
                     clickStation(station.url_resolved, station.favicon, station.name, station.stationuuid);
                 };
@@ -872,7 +872,7 @@ function appendSearchResults(stations) {
                 const textContainer = document.createElement("div");
                 textContainer.className = "ms-2 me-auto text-break";
                 const stationName = document.createElement("div");
-                stationName.className = "fw-bold";
+                stationName.className = "fw-bold small";
                 stationName.textContent = station.name;
                 textContainer.appendChild(stationName);
 
@@ -884,7 +884,10 @@ function appendSearchResults(stations) {
                 if (station.bitrate) details.push(`${station.bitrate} kbps`);
                 if (station.codec) details.push(station.codec);
                 if (details.length > 0) {
-                    textContainer.appendChild(document.createTextNode(`[${details.join(" ")}]`));
+                    const span = document.createElement("span");
+                    span.className = "text-muted";
+                    span.textContent = `[${details.join(" ")}]`;
+                    textContainer.appendChild(span);
                 }
 
                 listItem.appendChild(textContainer);
