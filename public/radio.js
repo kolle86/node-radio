@@ -197,7 +197,7 @@ function initVolumeSettings() {
         volumeRange.value = savedVolume * 100;
         changeVolume(savedVolume * 100);
     } else {
-        volumeRange.value = radio.volume * 100;
+        changeVolume(radio.volume * 100);
     }
 }
 
@@ -246,8 +246,14 @@ function clickStation(url, artwork, station, stationuuid) {
         // New station was selected
         Object.assign(currentStation, { name: station, url: url, favicon: artwork, uuid: stationuuid });
         document.title = station;
-        if (cast.framework.CastContext.getInstance().getCurrentSession()) {
-            chromeCastPlay();
+        if (window.cast && window.cast.framework) {
+            const castContext = cast.framework.CastContext.getInstance();
+            if (castContext.getCurrentSession()) {
+                chromeCastPlay();
+            } else {
+                radio.src = url;
+                playPromise = radio.play();
+            }
         } else {
             radio.src = url;
             playPromise = radio.play();
