@@ -68,17 +68,19 @@
                                         Remove</a>
                                 </li>
                                 -->
-                                <div class="btn-group" role="group" aria-label="Button-Gruppe">
-                                    <button id="menuEdit" onclick="toggleEditModal()" class="btn btn-secondary disabled">
-                                        <i class="bi bi-pencil-square"></i> Edit
-                                    </button>
-                                    <button id="menuAdd" onclick="favouritesAction('add')" class="btn btn-secondary disabled">
-                                        <i class="bi bi-bookmark-plus"></i> Add
-                                    </button>
-                                    <button id="menuRemove" onclick="favouritesAction('remove')" class="btn btn-secondary disabled">
-                                        <i class="bi bi-bookmark-dash"></i> Remove
-                                    </button>
-                                </div>
+                                <li class="nav-item">
+                                    <div class="btn-group w-100" role="group" aria-label="Button-Gruppe">
+                                        <button id="menuEdit" onclick="toggleEditModal()" class="btn btn-outline-secondary disabled">
+                                            <i class="bi bi-pencil-square"></i> Edit
+                                        </button>
+                                        <button id="menuAdd" onclick="favouritesAction('add')" class="btn btn-outline-secondary disabled">
+                                            <i class="bi bi-bookmark-plus"></i> Add
+                                        </button>
+                                        <button id="menuRemove" onclick="favouritesAction('remove')" class="btn btn-outline-secondary disabled">
+                                            <i class="bi bi-bookmark-dash"></i> Remove
+                                        </button>
+                                    </div>
+                                </li>
                                 <hr>
                                 <li class="nav-item">
                                     <form class="d-flex nav-link" role="search">
@@ -87,7 +89,7 @@
                                                 onkeypress="submitSearch(event)" type="search" name="searchterm"
                                                 placeholder="Search ..." aria-label="Search">
 
-                                            <button class="btn btn-secondary dropdown-toggle bi bi-filter"
+                                            <button class="btn btn-outline-secondary dropdown-toggle bi bi-filter"
                                                 title="Search by..." type="button" id="searchByButton"
                                                 data-bs-toggle="dropdown" aria-expanded="false"></button>
                                             <ul class="dropdown-menu" id="searchBy">
@@ -108,7 +110,7 @@
                                                         Language</a></li>
                                             </ul>
 
-                                            <button class="btn btn-secondary dropdown-toggle bi bi-sort-down"
+                                            <button class="btn btn-outline-secondary dropdown-toggle bi bi-sort-down"
                                                 title="Order by..." type="button" id="orderByButton"
                                                 data-bs-toggle="dropdown" aria-expanded="false"></button>
                                             <ul class="dropdown-menu" id="orderBy">
@@ -149,7 +151,7 @@
                                                         onclick="setOrderBy('Random', this)"><i class="bi"></i>
                                                         Random</a></li>
                                             </ul>
-                                            <button class="btn btn-secondary bi bi-search" id="searchButton"
+                                            <button class="btn btn-outline-secondary bi bi-search" id="searchButton"
                                                 type="button"
                                                 onclick="searchStations(document.getElementById('searchField').value, selectedSearchBy, selectedOrderBy)"></button>
 
@@ -178,7 +180,7 @@
                                 </li>
                                 <hr>
                                 <li class="nav-item">
-                                    <a class="btn btn-secondary" href="/logout">
+                                    <a class="btn btn-outline-secondary" href="/logout">
                                         <i class="bi bi-box-arrow-left"></i> Logout
                                     </a>
                                 </li>
