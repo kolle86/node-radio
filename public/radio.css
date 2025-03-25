@@ -38,7 +38,7 @@ a img{
 }
 
 #searchResults{
-    max-height: calc(100vh - 450px);
+    max-height: calc(100vh - 400px);
     overflow: auto;
 }
 
