@@ -121,9 +121,19 @@ app.get('/search', async (req, res) => {
             searchterm: search.toLowerCase(),
             reverse: reverse,
         }
-        RadioBrowser.getStations(filter)
-            .then(data => res.json(data))
-            .catch(error => console.error(error))
+        const timeout = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Request timed out')), 10000) // 5 Sekunden Timeout
+        );
+        try {
+            const data = await Promise.race([
+                RadioBrowser.getStations(filter),
+                timeout
+            ]);
+            res.json(data);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: error.message });
+        }
     } else {
         res.status(400).json({ error: 'Search term is required' });
     }

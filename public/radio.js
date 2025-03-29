@@ -806,12 +806,15 @@ async function searchStations(searchTerm, searchBy, orderBy) {
         searchButton.classList.remove("bi-search");
         try {
             const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error(`Response status: ${response.status}`);
-            }
             const data = await response.json();
+            if (!response.ok) {
+                //newToast(data.error);
+                throw new Error(`Response status: ${data.error}`);
+            }
             appendSearchResults(data);
         } catch (error) {
+            searchButton.innerHTML = "";
+            searchButton.classList.add("bi-search");
             console.error("Error searching stations:", error);
             newToast(error.message);
         }
