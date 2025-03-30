@@ -94,6 +94,10 @@ function setupMediaSessionHandlers() {
     });
 }
 
+/**
+ * Initializes the Chromecast API when it becomes available
+ * @param {boolean} isAvailable - Whether the Cast API is available
+ */
 window['__onGCastApiAvailable'] = function (isAvailable) {
     if (isAvailable) {
         setTimeout(() => {
@@ -102,6 +106,9 @@ window['__onGCastApiAvailable'] = function (isAvailable) {
     }
 };
 
+/**
+ * Initializes the Cast API with configuration settings and sets up event listeners
+ */
 initializeCastApi = function () {
     cast.framework.CastContext.getInstance().setOptions({
         receiverApplicationId: "835FA0CB",
@@ -138,6 +145,9 @@ initializeCastApi = function () {
 
 };
 
+/**
+ * Initiates playback on Chromecast device with current station
+ */
 function chromeCastPlay() {
     var castSession = cast.framework.CastContext.getInstance().getCurrentSession();
     var mediaInfo = new chrome.cast.media.MediaInfo(currentStation.url, "audio/mp3");
@@ -153,12 +163,22 @@ function chromeCastPlay() {
         function (errorCode) { console.log('Error code: ' + errorCode); });
 }
 
+/**
+ * Updates search criteria and UI for station search
+ * @param {string} criteria - The search criteria to use
+ * @param {HTMLElement} element - The dropdown element that was clicked
+ */
 function setSearchBy(criteria, element) {
     selectedSearchBy = criteria;
     document.querySelectorAll('#searchBy .dropdown-item i').forEach(icon => icon.classList.remove('bi-check-lg'));
     element.querySelector('i').classList.add('bi-check-lg');
 }
 
+/**
+ * Updates the order criteria and UI for station sorting
+ * @param {string} criteria - The order criteria to use
+ * @param {HTMLElement} element - The dropdown element that was clicked
+ */
 function setOrderBy(criteria, element) {
     selectedOrderBy = criteria;
     document.querySelectorAll('#orderBy .dropdown-item i').forEach(icon => icon.classList.remove('bi-check-lg'));
@@ -823,6 +843,10 @@ async function searchStations(searchTerm, searchBy, orderBy) {
     }
 }
 
+/**
+ * Appends search results to the page
+ * @param {Array<Object>} stations - Array of station objects to display
+ */
 function appendSearchResults(stations) {
     searchButton.innerHTML = "";
     searchButton.classList.add("bi-search");
@@ -935,8 +959,9 @@ function appendSearchResults(stations) {
     }
 }
 
-
-
+/**
+ * Clears the search results and resets the search field
+ */
 function resetSearch() {
     document.getElementById("searchResults").innerHTML = "";
     document.getElementById("searchResults").classList.remove("mt-2");
@@ -944,6 +969,10 @@ function resetSearch() {
     setMenu();
 }
 
+/**
+ * Handles search form submission when Enter key is pressed
+ * @param {KeyboardEvent} event - The keyboard event object
+ */
 function submitSearch(event) {
     if (event.key === 'Enter') {
       event.preventDefault(); 
