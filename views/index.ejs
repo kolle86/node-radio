@@ -52,7 +52,7 @@
                         </div>
                         <div class="offcanvas-body">
                             <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
-                               <!-- <li class="nav-item">
+                                <!-- <li class="nav-item">
                                     <a id="menuEdit" onclick="toggleEditModal()"
                                         class="disabled nav-link bi bi-pencil-square" href="javascript:void(0);">
                                         Edit</a>
@@ -70,13 +70,16 @@
                                 -->
                                 <li class="nav-item">
                                     <div class="btn-group w-100" role="group" aria-label="Button-Gruppe">
-                                        <button id="menuEdit" onclick="toggleEditModal()" class="btn btn-secondary disabled">
+                                        <button id="menuEdit" onclick="toggleEditModal()"
+                                            class="btn btn-secondary disabled">
                                             <i class="bi bi-pencil-square"></i> Edit
                                         </button>
-                                        <button id="menuAdd" onclick="favouritesAction('add')" class="btn btn-secondary disabled">
+                                        <button id="menuAdd" onclick="favouritesAction('add')"
+                                            class="btn btn-secondary disabled">
                                             <i class="bi bi-bookmark-plus"></i> Add
                                         </button>
-                                        <button id="menuRemove" onclick="favouritesAction('remove')" class="btn btn-secondary disabled">
+                                        <button id="menuRemove" onclick="favouritesAction('remove')"
+                                            class="btn btn-secondary disabled">
                                             <i class="bi bi-bookmark-dash"></i> Remove
                                         </button>
                                     </div>
@@ -164,10 +167,13 @@
                                     <form class="nav-link">
                                         <div class="input-group">
                                             <div class="input-group-text">
-                                                <input checked type="checkbox" class="form-check-input mt-0" id="visualizerCheck" onchange="toggleVisualizer();">
+                                                <input checked type="checkbox" class="form-check-input mt-0"
+                                                    id="visualizerCheck" onchange="toggleVisualizer();">
                                                 <label class="ms-2" for="visualizerCheck">Spectrum visualizer</label>
                                             </div>
-                                            <select class="form-select" id="selectGradient" aria-label="Default select example" onchange="changeGradient(this.value)">
+                                            <select class="form-select" id="selectGradient"
+                                                aria-label="Default select example"
+                                                onchange="changeGradient(this.value)">
                                                 <option value="default">Default</option>
                                                 <option value="classic">Classic</option>
                                                 <option value="orangered">Orangered</option>
@@ -181,20 +187,20 @@
                                 <hr>
                                 <li class="nav-item">
                                     <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <a class="btn btn-secondary" href="/logout">
-                                                    <i class="bi bi-box-arrow-left"></i> Logout
-                                                </a>
-                                            </div>
-                                            <div class="text-end">
-                                                <span class="text-muted">v<%= version.appVersion %></span>
-                                                <% if (!version.isUpToDate) { %>
-                                                    <span class="badge text-bg-warning">Update available</span>
-                                                    <% } %>
-                                                <br>
-                                                <a class="bi bi-github nav-link d-inline" target="_blank"
-                                                    href="https://github.com/kolle86/node-radio"> View Source</a>
-                                            </div>
+                                        <div>
+                                            <a class="btn btn-secondary" href="/logout">
+                                                <i class="bi bi-box-arrow-left"></i> Logout
+                                            </a>
+                                        </div>
+                                        <div class="text-end">
+                                            <span class="text-muted">v<%= version.appVersion %></span>
+                                            <% if (!version.isUpToDate) { %>
+                                                <span class="badge text-bg-warning">Update available</span>
+                                                <% } %>
+                                                    <br>
+                                                    <a class="bi bi-github nav-link d-inline" target="_blank"
+                                                        href="https://github.com/kolle86/node-radio"> View Source</a>
+                                        </div>
                                     </div>
                                 </li>
                             </ul>
@@ -238,28 +244,32 @@
                             <div class="mb-3">
                                 <div class="input-group">
                                     <span class="input-group-text" id="editStationNameInputLabel">Name</span>
-                                    <input type="text" class="form-control" id="editStationNameInput" aria-labelledby="editStationNameInputLabel">
+                                    <input type="text" class="form-control" id="editStationNameInput"
+                                        aria-labelledby="editStationNameInputLabel">
                                 </div>
                             </div>
-                            
+
                             <div class="mb-3">
                                 <div class="input-group">
                                     <span class="input-group-text" id="editStationFaviconInputLabel">Favicon</span>
-                                    <input type="text" class="form-control" id="editStationFaviconInput" aria-labelledby="editStationFaviconInputLabel">
+                                    <input type="text" class="form-control" id="editStationFaviconInput"
+                                        aria-labelledby="editStationFaviconInputLabel">
                                 </div>
                             </div>
-                            
+
                             <div class="mb-3">
                                 <div class="input-group">
                                     <span class="input-group-text" id="editStationURLInputLabel">URL</span>
-                                    <input type="text" class="form-control" id="editStationURLInput" aria-labelledby="editStationURLInputLabel">
+                                    <input type="text" class="form-control" id="editStationURLInput"
+                                        aria-labelledby="editStationURLInputLabel">
                                 </div>
                             </div>
-                            
+
                             <div class="mb-3">
                                 <div class="input-group">
                                     <span class="input-group-text" id="editStationUidInputLabel">UID</span>
-                                    <input type="text" disabled class="form-control" id="editStationUidInput" aria-labelledby="editStationUidInputLabel">
+                                    <input type="text" disabled class="form-control" id="editStationUidInput"
+                                        aria-labelledby="editStationUidInputLabel">
                                 </div>
                             </div>
                         </form>
@@ -273,8 +283,8 @@
             </div>
         </div>
         <div class="toast-container position-fixed bottom-0 end-0 p-3">
-            <div id="liveToast" class="toast align-items-center bg-dark-subtle" data-bs-autohide="true" data-bs-delay="5000"
-                role="alert" aria-live="assertive" aria-atomic="true">
+            <div id="liveToast" class="toast align-items-center bg-dark-subtle" data-bs-autohide="true"
+                data-bs-delay="5000" role="alert" aria-live="assertive" aria-atomic="true">
                 <div class="d-flex">
                     <div id="toastMessage" class="toast-body">
                         Hello, world! This is a toast message.

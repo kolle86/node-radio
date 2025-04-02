@@ -34,6 +34,13 @@ app.use(session({
     cookie: { maxAge: 7 * 24 * 60 * 60 * 1000 }
 }));
 
+/**
+ * Middleware to ensure the favourites file exists.
+ * If the file does not exist, it creates a new one with an empty stations array.
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {Function} next - Callback to pass control to the next middleware.
+ */
 app.use((req, res, next) => {
     if (!fs.existsSync(favsFile)) {
         fs.writeFileSync(favsFile, JSON.stringify({ stations: [] }, null, 2));
@@ -122,7 +129,7 @@ app.get('/search', async (req, res) => {
             reverse: reverse,
         }
         const timeout = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Request timed out')), 10000) // 5 Sekunden Timeout
+            setTimeout(() => reject(new Error('Request timed out')), 10000)
         );
         try {
             const data = await Promise.race([
