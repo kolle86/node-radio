@@ -405,9 +405,11 @@ function renderFavourites() {
         const newFav = document.createElement("a");
         newFav.innerHTML = `
             <div class="ms-2 me-auto">
-                <div class="fw-bold">${station.name}</div>
-                <div class="title text-break">
+                <div class="fw-bold">
                     <span class="me-1 bi" id="status_${station.uuid}"></span>
+                    ${station.name}
+                </div>
+                <div class="title text-break">
                     <span id="title_${station.uuid}"></span>
                 </div>
             </div>
