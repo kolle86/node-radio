@@ -736,18 +736,20 @@ function handleTrackUpdate(info) {
             document.getElementById("title_" + currentStation.uuid).innerHTML = info.title;
             if (info.title) {
                 fetchCover(info.title);
+                if ('mediaSession' in navigator && !chromeCastIsConnected) {
+                    navigator.mediaSession.metadata.artist = info.title;
+                }
             }
+            document.title = info.title ? `${currentStation.name} - ${info.title}` : currentStation.name;
         } else {
             document.getElementById("title_" + currentStation.uuid).innerHTML = '';
+            if ('mediaSession' in navigator && !chromeCastIsConnected) {
+                navigator.mediaSession.metadata.artist = "";
+            }            
             skipFirstTrackUpdate = false;
         }
     }
 
-    if ('mediaSession' in navigator && !chromeCastIsConnected) {
-        navigator.mediaSession.metadata.artist = info.title;
-    }
-
-    document.title = info.title ? `${currentStation.name} - ${info.title}` : currentStation.name;
 }
 
 /**
@@ -809,11 +811,14 @@ function handleCoverResponse(data) {
     document.getElementById("favicon_" + currentStation.uuid).src = coverUrl;
 
     if ('mediaSession' in navigator) {
-        navigator.mediaSession.metadata = new MediaMetadata({
+        /*navigator.mediaSession.metadata = new MediaMetadata({
             artwork: [{
                 src: coverUrl, type: 'image/png'
             }]
-        });
+        });*/
+        navigator.mediaSession.metadata.artwork = [{
+                src: coverUrl, type: 'image/png'
+            }]
     }
 }
 
