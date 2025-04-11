@@ -28,6 +28,27 @@ const nowPlaying = RadioliseMetadata.createMetadataClient({
     url: 'wss://backend.radiolise.com/api/data-service',
 });
 
+const sortable = new Sortable(document.getElementById('favourites'), {
+    animation: 150,
+    ghostClass: 'bg-secondary-subtle',
+    draggable: ".list-group-item",
+    onEnd: function (/**Event*/evt) {
+        fav_temp = favourites.stations[evt.newIndex];
+        favourites.stations[evt.newIndex] = favourites.stations[evt.oldIndex];
+        favourites.stations[evt.oldIndex] = fav_temp;   
+        fetch("/setfavs", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(favourites)
+        });
+	}    
+});
+
+    // Items durchlaufen und per ID mit uuid der alten favourites.stations Mappen. Array.find()? Am Ende favourites.stations = newOrder. Dann hier per Fetch speichern. Renderfavs und Update() und Setmenu() nicht erforderlich!?
+  
+
 // Event listeners for dropdown items
 setupDropdownListeners();
 
@@ -421,6 +442,7 @@ function renderFavourites() {
         newFav.setAttribute("onclick", `clickStation('${station.url}','${station.favicon}','${station.name}','${station.uuid}')`);
         favouritesContainer.appendChild(newFav);
     });
+
 }
 
 /**
@@ -745,7 +767,7 @@ function handleTrackUpdate(info) {
             document.getElementById("title_" + currentStation.uuid).innerHTML = '';
             if ('mediaSession' in navigator && !chromeCastIsConnected) {
                 navigator.mediaSession.metadata.artist = "";
-            }            
+            }
             skipFirstTrackUpdate = false;
         }
     }
@@ -817,8 +839,8 @@ function handleCoverResponse(data) {
             }]
         });*/
         navigator.mediaSession.metadata.artwork = [{
-                src: coverUrl, type: 'image/png'
-            }]
+            src: coverUrl, type: 'image/png'
+        }]
     }
 }
 
@@ -897,7 +919,7 @@ function appendSearchResults(stations) {
                 img.className = "rounded shadow-lg station-icon-search";
                 if (station.favicon) {
                     img.src = station.favicon;
-                }else{
+                } else {
                     img.src = "radio.svg"
                 }
                 img.loading = "lazy";
@@ -927,17 +949,17 @@ function appendSearchResults(stations) {
                 listItem.appendChild(textContainer);
 
                 const badgeDiv = document.createElement("div");
-                badgeDiv.className="d-flex flex-column gap-1 align-items-end";
+                badgeDiv.className = "d-flex flex-column gap-1 align-items-end";
                 if (station.votes) {
                     const spanVotes = document.createElement("span");
                     spanVotes.className = "badge text-bg-dark border rounded-pill bi bi-hand-thumbs-up";
-                    spanVotes.textContent=station.votes;
+                    spanVotes.textContent = station.votes;
                     badgeDiv.appendChild(spanVotes);
                 }
                 if (station.clickcount) {
                     const spanClicks = document.createElement("span");
                     spanClicks.className = "badge text-bg-dark border rounded-pill bi bi-mouse";
-                    spanClicks.textContent=station.clickcount;
+                    spanClicks.textContent = station.clickcount;
                     badgeDiv.appendChild(spanClicks);
                 }
                 listItem.appendChild(badgeDiv);
@@ -982,8 +1004,8 @@ function resetSearch() {
  */
 function submitSearch(event) {
     if (event.key === 'Enter') {
-      event.preventDefault(); 
-      searchButton.onclick();
+        event.preventDefault();
+        searchButton.onclick();
     }
 }
 
