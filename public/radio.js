@@ -32,6 +32,7 @@ const sortable = new Sortable(document.getElementById('favourites'), {
     animation: 150,
     ghostClass: 'bg-secondary-subtle',
     draggable: ".list-group-item",
+    delay: 100,
     onEnd: function (/**Event*/evt) {
         fav_temp = favourites.stations[evt.newIndex];
         favourites.stations[evt.newIndex] = favourites.stations[evt.oldIndex];
