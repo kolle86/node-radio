@@ -47,8 +47,6 @@ const sortable = new Sortable(document.getElementById('favourites'), {
 	}    
 });
 
-    // Items durchlaufen und per ID mit uuid der alten favourites.stations Mappen. Array.find()? Am Ende favourites.stations = newOrder. Dann hier per Fetch speichern. Renderfavs und Update() und Setmenu() nicht erforderlich!?
-  
 
 // Event listeners for dropdown items
 setupDropdownListeners();
