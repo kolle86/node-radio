@@ -102,3 +102,22 @@ a img{
 .sortable-ghost{
     background-color: var(--bs-body-bg);
 }
+
+.sortable-chosen {
+    cursor: grabbing;
+    animation: gentle-shake 0.5s cubic-bezier(.36,.07,.19,.97) 1 forwards;
+    position: relative;
+    z-index: 10;
+}
+
+@keyframes gentle-shake {
+    0%, 100% {
+        rotate: 0deg;
+    }
+    25%, 75% {
+        rotate: -1deg;
+    }
+    50% {
+        rotate: 1deg;
+    }
+}
