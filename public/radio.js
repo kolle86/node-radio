@@ -913,8 +913,13 @@ function appendSearchResults(stations) {
                 listItem.id = station.stationuuid + "_search";
                 listItem.href = "javascript:void(0);";
                 listItem.className = "list-group-item list-group-item-action d-flex justify-content-between align-items-start px-1";
+
+                if(station.url_resolved){
+                    station.url = station.url_resolved;
+                }
+                
                 listItem.onclick = function () {
-                    clickStation(station.url_resolved, station.favicon, station.name, station.stationuuid);
+                    clickStation(station.url, station.favicon, station.name, station.stationuuid);
                 };
                 const img = document.createElement("img");
                 img.className = "rounded shadow-lg station-icon-search";
