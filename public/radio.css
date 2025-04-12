@@ -121,3 +121,6 @@ a img{
         rotate: 1deg;
     }
 }
+.progress-bar{
+    transition: none !important;
+}
