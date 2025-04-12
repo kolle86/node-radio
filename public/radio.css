@@ -79,3 +79,42 @@ a img{
 #searchBy{
     max-width: 100px !important;
 }
+
+.sortable-chosen {
+    cursor: grabbing;
+    animation: pulse-shadow 1.2s infinite;
+    position: relative;
+    z-index: 10;
+}
+
+@keyframes pulse-shadow {
+    0% {
+        box-shadow: 0 0 0 0 rgba(var(--bs-primary-rgb), 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 8px rgba(var(--bs-primary-rgb), 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(var(--bs-primary-rgb), 0);
+    }
+}
+
+/* Add drag handle icon indicator */
+.list-group-item {
+    position: relative;
+}
+
+.sortable-chosen:hover:after {
+    content: "\f283"; /* Bootstrap icon for "chevron-expand" (up and down arrows) */
+    font-family: "bootstrap-icons";
+    position: absolute;
+    left: 50%; /* Center horizontally */
+    top: 50%;
+    transform: translate(-50%, -50%); /* Center perfectly */
+    color: var(--bs-secondary-color);
+    font-size: 2rem; /* Bigger icon */
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 2; /* Ensure it's above content */
+    color: var(--bs-primary);
+}

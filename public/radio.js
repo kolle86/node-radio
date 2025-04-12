@@ -32,7 +32,7 @@ const sortable = new Sortable(document.getElementById('favourites'), {
     animation: 150,
     ghostClass: 'bg-secondary-subtle',
     draggable: ".list-group-item",
-    delay: 100,
+    delay: 500,
     onEnd: function (/**Event*/evt) {
         fav_temp = favourites.stations[evt.newIndex];
         favourites.stations[evt.newIndex] = favourites.stations[evt.oldIndex];
@@ -47,6 +47,9 @@ const sortable = new Sortable(document.getElementById('favourites'), {
 	}    
 });
 
+document.getElementById("favourites").addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+});
 
 // Event listeners for dropdown items
 setupDropdownListeners();
