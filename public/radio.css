@@ -80,25 +80,6 @@ a img{
     max-width: 100px !important;
 }
 
-.sortable-chosen {
-    cursor: grabbing;
-    animation: pulse-shadow 1.2s infinite;
-    position: relative;
-    z-index: 10;
-}
-
-@keyframes pulse-shadow {
-    0% {
-        box-shadow: 0 0 0 0 rgba(var(--bs-primary-rgb), 0.7);
-    }
-    70% {
-        box-shadow: 0 0 0 8px rgba(var(--bs-primary-rgb), 0);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba(var(--bs-primary-rgb), 0);
-    }
-}
-
 .sortable-chosen:after {
     content: "\f283"; 
     font-family: "bootstrap-icons";
@@ -114,3 +95,10 @@ a img{
     border-radius: 50%;
 }
 
+.sortable-ghost:after {
+    content: "";   
+}
+
+.sortable-ghost{
+    background-color: var(--bs-body-bg);
+}

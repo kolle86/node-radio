@@ -30,7 +30,6 @@ const nowPlaying = RadioliseMetadata.createMetadataClient({
 
 const sortable = new Sortable(document.getElementById('favourites'), {
     animation: 150,
-    ghostClass: 'bg-secondary-subtle',
     draggable: ".list-group-item",
     delay: 500,
     onEnd: function (/**Event*/evt) {
