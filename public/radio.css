@@ -124,3 +124,7 @@ a img{
 .progress-bar{
     transition: none !important;
 }
+
+#volumeRange{
+    cursor: pointer;
+}
