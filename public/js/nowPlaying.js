@@ -27,7 +27,8 @@ function handleTrackUpdate(info) {
         document.getElementById("title_" + currentStation.uuid).innerHTML = "";
     } else {
         if (!skipFirstTrackUpdate) {
-            document.getElementById("title_" + currentStation.uuid).innerHTML = info.title;
+            document.getElementById("title_" + currentStation.uuid).innerHTML = info.title ? 
+                `${info.title} <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(info.title)}" target="_blank" title="Search on YouTube"><i class="bi bi-youtube text-danger-emphasis"></i></a>` : "";
             if (info.title) {
                 fetchCover(info.title);
                 if ('mediaSession' in navigator && !chromeCastIsConnected) {
