@@ -7,6 +7,7 @@ function toggleEditModal() {
 
     document.getElementById("editStationNameInput").value = currentStation.name;
     document.getElementById("editStationFaviconInput").value = currentStation.favicon;
+    previewFavicon(currentStation.favicon)
     document.getElementById("editStationURLInput").value = currentStation.url;
     document.getElementById("editStationUidInput").value = currentStation.uuid;
     modal.show();

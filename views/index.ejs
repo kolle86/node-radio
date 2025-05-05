@@ -253,7 +253,11 @@
                                 <div class="input-group">
                                     <span class="input-group-text" id="editStationFaviconInputLabel">Favicon</span>
                                     <input type="text" class="form-control" id="editStationFaviconInput"
-                                        aria-labelledby="editStationFaviconInputLabel">
+                                        aria-labelledby="editStationFaviconInputLabel" oninput="previewFavicon(this.value)">
+                                    <div class="input-group-text p-0 overflow-hidden" style="width: 40px; height: 38px;">
+                                        <img id="faviconPreview" class="w-100 h-100" style="object-fit: cover;" 
+                                             src="" alt="" onerror="this.style.display='none'">
+                                    </div>
                                 </div>
                             </div>
 

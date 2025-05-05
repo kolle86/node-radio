@@ -252,3 +252,14 @@ function initSortable(){
         }    
     });
 }
+
+function previewFavicon(url) {
+    const preview = document.getElementById('faviconPreview');
+    if (url) {
+        preview.src = url;
+        preview.style.display = 'block';
+    } else {
+        preview.src = '';
+        preview.style.display = 'none';
+    }
+}
