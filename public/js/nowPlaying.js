@@ -28,7 +28,7 @@ function handleTrackUpdate(info) {
     } else {
         if (!skipFirstTrackUpdate) {
             document.getElementById("title_" + currentStation.uuid).innerHTML = info.title ? 
-                `<a class="text-decoration-none text-body-secondary" href="https://www.youtube.com/results?search_query=${encodeURIComponent(info.title)}" target="_blank" title="Search on YouTube" onclick="event.stopPropagation();"><i class="bi bi-youtube text-danger-emphasis"></i> ${info.title}</a>` : "";
+                `<a class="text-decoration-none text-body-secondary" href="https://www.youtube.com/results?search_query=${encodeURIComponent(info.title)}" target="_blank" title="Search on YouTube" onclick="event.stopPropagation();">${info.title}</a>` : "";
             if (info.title) {
                 fetchCover(info.title);
                 if ('mediaSession' in navigator && !chromeCastIsConnected) {
