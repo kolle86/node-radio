@@ -70,7 +70,37 @@ function chromeCastPlay() {
   mediaInfo.streamType = chrome.cast.media.StreamType.BUFFERED;
   mediaInfo.metadata = new chrome.cast.media.MusicTrackMediaMetadata();
   mediaInfo.metadata.title = currentStation.name;
-  mediaInfo.metadata.images = [{ url: currentStation.favicon }];
+
+  // Ensure favicon URL is HTTPS and valid for Android notifications
+  let faviconUrl = currentStation.favicon;
+  if (faviconUrl) {
+    // Convert HTTP to HTTPS for Android compatibility
+    if (faviconUrl.startsWith("http://")) {
+      faviconUrl = faviconUrl.replace("http://", "https://");
+    }
+    // Add multiple image sizes for better compatibility
+    mediaInfo.metadata.images = [
+      { url: faviconUrl, width: 512, height: 512 },
+      { url: faviconUrl, width: 192, height: 192 },
+      { url: faviconUrl, width: 128, height: 128 },
+      { url: faviconUrl },
+    ];
+  } else {
+    // Fallback to app icon if no favicon is available
+    mediaInfo.metadata.images = [
+      {
+        url: window.location.origin + "/icons/512.png",
+        width: 512,
+        height: 512,
+      },
+      {
+        url: window.location.origin + "/icons/192.png",
+        width: 192,
+        height: 192,
+      },
+    ];
+  }
+
   var request = new chrome.cast.media.LoadRequest(mediaInfo);
   castSession.loadMedia(request).then(
     function () {
